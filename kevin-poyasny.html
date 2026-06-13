@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KEVIN · Поясни, не називаючи</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --yellow:#FFD300; --yellow-deep:#F0BD40;
+    --turq:#3DB4BF; --turq-deep:#2c8f99;
+    --orange:#EB7C22;
+    --ink:#56433b; --ink-deep:#453636;
+    --cream:#FFFDF6; --surface:#ffffff; --red:#E5533D; --shadow:rgba(86,67,59,.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:"Montserrat",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    color:var(--ink);
+    background:radial-gradient(120% 90% at 50% -10%, #FFF3CF 0%, var(--cream) 55%, #FFFBF0 100%);
+    height:100vh;height:100dvh;overflow:hidden;
+    display:flex;flex-direction:column;align-items:center;padding:clamp(10px,2vh,22px) 14px;
+  }
+  header{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin-bottom:clamp(8px,1.5vh,16px)}
+  .brand{height:38px} .brand svg{height:100%;width:auto;display:block}
+  h1{font-weight:900;font-size:clamp(22px,3.8vw,34px);letter-spacing:-.02em;line-height:1.04;color:var(--ink-deep)}
+  h1 .spark{color:var(--orange)}
+  .rule{font-weight:600;font-size:clamp(12px,2vw,15px);color:var(--ink);opacity:.78;max-width:40ch}
+
+  .stage{flex:1 1 auto;min-height:0;width:100%;display:flex;align-items:center;justify-content:center}
+  .panel{
+    background:var(--surface);border:2px solid rgba(255,211,0,.55);border-radius:26px;
+    padding:clamp(18px,3vh,30px) clamp(16px,2.6vh,26px);
+    width:min(92vw,440px);max-height:94%;
+    display:flex;flex-direction:column;align-items:center;text-align:center;gap:clamp(12px,2vh,18px);
+    box-shadow:0 30px 70px -22px rgba(69,54,54,.5);
+  }
+  .panel[hidden]{display:none}
+  .panel .big-ic{width:clamp(54px,9vh,72px);height:clamp(54px,9vh,72px)}
+  .panel .big-ic svg{width:100%;height:100%;display:block}
+  .panel h2{font-weight:900;font-size:clamp(22px,4vh,30px);color:var(--ink-deep)}
+  .panel p{font-weight:600;font-size:clamp(13px,2vh,16px);color:var(--ink);opacity:.8;line-height:1.4;max-width:32ch}
+  .start-btn{
+    font-family:inherit;font-weight:800;font-size:clamp(18px,3vh,22px);color:var(--ink-deep);
+    background:linear-gradient(180deg,#FFE05B 0%,var(--yellow) 55%,var(--yellow-deep) 100%);
+    border:none;padding:15px 46px;border-radius:999px;cursor:pointer;
+    box-shadow:0 9px 0 #d99e1f, 0 14px 24px -8px var(--shadow);transition:transform .12s,box-shadow .12s,filter .2s;
+  }
+  .start-btn:hover{filter:brightness(1.03)}
+  .start-btn:active{transform:translateY(6px);box-shadow:0 3px 0 #d99e1f}
+  .start-btn:focus-visible{outline:3px solid var(--turq);outline-offset:4px}
+
+  /* play */
+  #panelPlay{width:min(94vw,460px);gap:clamp(12px,2vh,18px)}
+  .word-card{
+    width:100%;flex:1 1 auto;min-height:clamp(120px,26vh,210px);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+    background:linear-gradient(180deg,#fff 0%, #FFFDF2 100%);
+    border:3px solid var(--yellow);border-radius:20px;padding:18px;
+  }
+  .word{font-weight:900;line-height:1.06;letter-spacing:-.02em;color:var(--ink-deep);text-align:center}
+  .play-row{display:flex;align-items:center;justify-content:center;gap:clamp(16px,4vw,26px)}
+  .timer{position:relative;width:clamp(78px,13vh,100px);height:clamp(78px,13vh,100px);flex:0 0 auto}
+  .timer svg{width:100%;height:100%;transform:rotate(-90deg)}
+  .timer .track{fill:none;stroke:rgba(86,67,59,.14);stroke-width:11}
+  .timer .bar{fill:none;stroke:var(--turq);stroke-width:11;stroke-linecap:round;transition:stroke .3s}
+  .timer .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:clamp(26px,5vh,36px);color:var(--ink-deep)}
+  .timer.warn .bar{stroke:var(--yellow-deep)} .timer.warn .num{color:var(--yellow-deep)}
+  .timer.danger .bar{stroke:var(--red)} .timer.danger .num{color:var(--red)}
+  .timer.done{animation:shake .4s}
+  @keyframes shake{10%,90%{transform:translateX(-2px)}30%,70%{transform:translateX(4px)}50%{transform:translateX(-5px)}}
+  .score{font-weight:700;font-size:clamp(13px,2vh,16px);color:var(--ink)}
+  .score b{display:block;font-size:clamp(26px,5vh,38px);color:var(--turq-deep);line-height:1}
+  .btns{display:flex;gap:12px;width:100%}
+  .btn{flex:1;font-family:inherit;font-weight:800;font-size:clamp(15px,2.3vh,18px);border:none;border-radius:16px;
+    padding:clamp(13px,2.2vh,18px) 10px;cursor:pointer;transition:transform .1s,box-shadow .1s,filter .15s}
+  .btn:active{transform:translateY(3px)}
+  .btn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+  .btn.ok{background:var(--turq);color:#fff;box-shadow:0 6px 0 var(--turq-deep)}
+  .btn.ok:active{box-shadow:0 2px 0 var(--turq-deep)}
+  .btn.skip{background:#fff;color:var(--ink);border:2px solid rgba(86,67,59,.14);box-shadow:0 6px 0 #d9cfc7}
+  .btn.skip:active{box-shadow:0 2px 0 #d9cfc7}
+
+  .done-score b{color:var(--turq-deep)}
+
+  .rule-foot{flex:0 0 auto;margin-top:clamp(8px,1.4vh,14px);font-size:12px;font-weight:600;color:var(--ink);opacity:.6;text-align:center;max-width:42ch}
+
+  .sound-toggle{
+    position:fixed;top:max(12px,env(safe-area-inset-top));right:12px;z-index:5;
+    display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-weight:700;font-size:13px;color:var(--ink);
+    background:rgba(255,255,255,.95);border:2px solid rgba(86,67,59,.16);padding:7px 13px;border-radius:999px;cursor:pointer;
+    box-shadow:0 6px 16px -6px var(--shadow);
+  }
+  .sound-toggle.off{opacity:.6}
+  .sound-toggle .ico{width:17px;height:17px;display:inline-flex}
+  .sound-toggle .ico svg{width:100%;height:100%}
+
+  @media (prefers-reduced-motion:reduce){ .timer.done{animation:none} }
+  .back-link{position:fixed;top:max(10px,env(safe-area-inset-top));left:10px;z-index:60;display:inline-flex;align-items:center;gap:6px;
+    font-family:"Montserrat",system-ui,sans-serif;font-weight:800;font-size:13px;color:#56433b;text-decoration:none;
+    background:rgba(255,255,255,.96);border:2px solid rgba(86,67,59,.16);border-radius:999px;padding:8px 14px 8px 11px;
+    box-shadow:0 8px 20px -6px rgba(86,67,59,.18);-webkit-tap-highlight-color:transparent}
+  .back-link:active{transform:translateY(1px)}
+</style>
+</head>
+<body>
+<a class="back-link" href="kevin-igry.html">← Меню</a>
+
+<header>
+  <span class="brand" aria-label="KEVIN"><svg viewBox="0 0 561 350" xmlns="http://www.w3.org/2000/svg" role="img">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M286.123 54.5387C281.131 50.4673 267.982 49.1438 259.781 54.5387L287.116 20.5001H296.798L286.066 54.5387H286.123Z" fill="#E4B472"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M287.168 20.5008L303.425 0L296.85 20.5008H287.168Z" fill="#453636"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M319.611 20.5008L303.354 0L309.914 20.5008H319.611Z" fill="#9B827C"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M309.915 20.5008L303.354 0L296.852 20.5008H309.915Z" fill="#5A4A4A"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M320.702 54.5819L309.913 20.5001H296.85L286.103 54.6682C297.54 48.3957 309.208 48.5683 320.702 54.6682V54.5819Z" fill="#F4D592"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M320.66 54.5387C326.544 49.6185 339.363 48.7841 346.887 54.5387L319.552 20.5001H309.856L320.603 54.5387H320.66Z" fill="#FDFAD7"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M286.134 191.748H259.519L259.778 54.5431C268.573 48.3185 277.349 48.3185 286.106 54.5431V191.748H286.134Z" fill="#DE8E2B"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M320.564 192.107L286.122 191.748V54.5431C297.574 48.3185 309.054 48.3185 320.564 54.5431V192.107Z" fill="#F0BD40"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M346.915 191.748H320.3L320.559 54.5431C329.354 48.3185 338.13 48.3185 346.886 54.5431V191.748H346.915Z" fill="#F2D065"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M259.543 180.021L238.467 203.24C235.906 203.298 234.741 201.859 234.971 198.924C234.971 160.685 231.935 147.406 259.788 116.202L259.543 180.064V180.021Z" fill="#5A4A4A"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M259.798 116.159L253.094 124.071L252.849 187.401L259.553 179.762L259.798 116.159Z" fill="#453636"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M303.008 82.5349C305.529 82.5349 307.993 83.2824 310.089 84.683C312.186 86.0836 313.819 88.0744 314.784 90.4035C315.749 92.7326 316.001 95.2955 315.509 97.7681C315.018 100.241 313.804 102.512 312.021 104.294C310.238 106.077 307.967 107.291 305.495 107.783C303.022 108.275 300.459 108.022 298.13 107.058C295.801 106.093 293.81 104.459 292.409 102.363C291.009 100.267 290.261 97.8024 290.261 95.2813C290.261 91.9008 291.604 88.6586 293.995 86.2682C296.385 83.8778 299.627 82.5349 303.008 82.5349ZM303.008 70.1912C307.97 70.1912 312.821 71.6627 316.947 74.4196C321.073 77.1766 324.289 81.0951 326.188 85.6798C328.087 90.2644 328.584 95.3092 327.616 100.176C326.648 105.043 324.258 109.514 320.749 113.023C317.24 116.532 312.77 118.921 307.903 119.889C303.036 120.858 297.991 120.361 293.406 118.462C288.822 116.563 284.903 113.347 282.146 109.221C279.389 105.095 277.918 100.244 277.918 95.2813C277.916 91.9859 278.563 88.7225 279.824 85.6775C281.084 82.6326 282.932 79.8659 285.262 77.5357C287.592 75.2055 290.359 73.3574 293.404 72.0972C296.449 70.837 299.712 70.1893 303.008 70.1912Z" fill="white"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M259.689 191.928H346.973V201.02C346.961 204.262 345.667 207.368 343.373 209.659C341.079 211.951 337.972 213.241 334.73 213.248H271.903C268.661 213.241 265.554 211.951 263.26 209.659C260.966 207.368 259.672 204.262 259.661 201.02V191.928H259.689Z" fill="#3DB4BF"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M303.008 81.1552C305.806 81.1552 308.541 81.9849 310.867 83.5395C313.193 85.0941 315.005 87.3036 316.075 89.8886C317.145 92.4735 317.424 95.3177 316.878 98.0614C316.331 100.805 314.982 103.325 313.003 105.302C311.024 107.279 308.503 108.625 305.758 109.169C303.014 109.713 300.17 109.431 297.586 108.358C295.003 107.286 292.795 105.471 291.243 103.144C289.69 100.816 288.863 98.0804 288.866 95.2827C288.87 91.5345 290.362 87.9412 293.013 85.2921C295.665 82.6431 299.26 81.1551 303.008 81.1552ZM303.008 83.5433C305.334 83.5433 307.607 84.233 309.54 85.5252C311.473 86.8174 312.98 88.6539 313.869 90.8025C314.758 92.951 314.99 95.3151 314.535 97.5955C314.081 99.8759 312.96 101.97 311.314 103.613C309.669 105.257 307.574 106.375 305.293 106.827C303.012 107.279 300.648 107.044 298.5 106.152C296.353 105.26 294.518 103.752 293.228 101.817C291.939 99.8819 291.252 97.608 291.255 95.2827C291.255 93.7399 291.559 92.2122 292.15 90.7869C292.74 89.3617 293.606 88.0669 294.698 86.9766C295.79 85.8863 297.085 85.0219 298.511 84.4328C299.937 83.8437 301.465 83.5414 303.008 83.5433Z" fill="#D1D3D5"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M303.008 83.5434C305.333 83.5434 307.606 84.2331 309.54 85.5253C311.473 86.8174 312.979 88.654 313.869 90.8025C314.758 92.9511 314.99 95.3152 314.535 97.5956C314.08 99.876 312.959 101.97 311.314 103.614C309.669 105.257 307.573 106.375 305.292 106.827C303.011 107.279 300.648 107.044 298.5 106.152C296.353 105.26 294.518 103.752 293.228 101.817C291.938 99.882 291.251 97.6081 291.254 95.2828C291.254 93.74 291.558 92.2123 292.149 90.787C292.74 89.3618 293.606 88.067 294.698 86.9767C295.789 85.8864 297.085 85.022 298.511 84.4329C299.937 83.8437 301.465 83.5415 303.008 83.5434Z" fill="#76CFE5"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M301.131 88.6394C308.396 84.8557 315.747 95.286 308.511 101.415C309.691 95.238 307.231 90.9796 301.131 88.6394Z" fill="white"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M346.948 180.367L368.038 203.587C370.58 203.587 371.745 202.148 371.534 199.271C371.534 161.046 374.57 147.752 346.703 116.562L346.948 180.424V180.367Z" fill="#5A4A4A"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M346.789 116.82L353.493 124.733L353.738 188.063L347.034 180.423L346.789 116.82Z" fill="#453636"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M309.053 136.47L307.024 199.454C306.449 217.438 299.831 218.272 299.256 199.454L297.241 136.671C296.752 121.22 309.513 122.285 309.053 136.413V136.47Z" fill="#5A4A4A"/>
+      <path d="M0 237.708H30.7009V282.651L68.8397 237.708H105.238L63.3009 285.342L106.662 348.484H69.7892L41.9368 307.339L30.7009 319.841V348.484H0V237.708Z" fill="#56433b"/>
+      <path d="M131.351 237.708H220.447V263.819H161.735V280.594H214.908V304.807H161.735V322.387H221.238V348.484H131.351V237.708Z" fill="#56433b"/>
+      <path d="M243.869 237.708H278.21L303.372 307.828L328.534 237.708H362.242L317.298 349.275H288.813L243.869 237.708Z" fill="#56433b"/>
+      <path d="M389.457 348.484H420.316V237.708H389.457V348.484Z" fill="#56433b"/>
+      <path d="M456.395 237.708H485.039L530.616 296.261V237.708H561V348.484H534.097L486.78 287.715V348.484H456.395V237.708Z" fill="#56433b"/>
+      <path d="M284.999 237.968L304.334 282.149L322.317 237.853L284.999 237.968Z" fill="#EFBC3F"/>
+      <path d="M295.771 237.91L304.533 257.922L312.676 237.853L295.771 237.91Z" fill="white"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M328.535 237.895L303.373 307.829L278.211 237.895" fill="#EB7C22"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M319.988 237.895L303.055 284.954L286.122 237.895" fill="#F0BD40"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M311.238 237.895L303.052 260.669L294.852 237.895" fill="white"/>
+    </svg></span>
+  <h1>Поясни, <span class="spark">не називаючи</span></h1>
+  <p class="rule">Поясни слово, не вимовляючи його — команда вгадує. Чим більше за 60 секунд, тим краще</p>
+</header>
+
+<main class="stage">
+  <div class="panel" id="panelIdle">
+    <span class="big-ic">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7 13a4 4 0 0 1 4-4h26a4 4 0 0 1 4 4v15a4 4 0 0 1-4 4H21l-8 7v-7h-2a4 4 0 0 1-4-4z" fill="#EB7C22" fill-opacity=".92" stroke="#56433b" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="18" cy="20.5" r="2.3" fill="#fff"/><circle cx="24" cy="20.5" r="2.3" fill="#fff"/><circle cx="30" cy="20.5" r="2.3" fill="#fff"/>
+      </svg>
+    </span>
+    <h2>Твій хід!</h2>
+    <p>Тобі випадатимуть слова. Поясни кожне, <b>не вживаючи саме слово</b> й однокореневі. Команда вгадує — тисни «Вгадали», щоб перейти до наступного.</p>
+    <button class="start-btn" id="startBtn">Старт</button>
+  </div>
+
+  <div class="panel" id="panelPlay" hidden>
+    <div class="word-card"><div class="word" id="word"></div></div>
+    <div class="play-row">
+      <div class="timer" id="timer">
+        <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="54"></circle><circle class="bar" id="timerBar" cx="60" cy="60" r="54"></circle></svg>
+        <div class="num" id="timeNum">60</div>
+      </div>
+      <div class="score">Вгадано<b id="scoreNum">0</b></div>
+    </div>
+    <div class="btns">
+      <button class="btn skip" id="skipBtn">Пропустити</button>
+      <button class="btn ok" id="okBtn">Вгадали &#10003;</button>
+    </div>
+  </div>
+
+  <div class="panel" id="panelDone" hidden>
+    <span class="big-ic">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="24" cy="24" r="19" fill="#FFD300" stroke="#56433b" stroke-width="2.5"/>
+        <path d="m16 24 5 5 11-11" stroke="#56433b" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+    <h2>Час вийшов!</h2>
+    <p class="done-score" style="font-size:clamp(16px,2.4vh,19px)">Вгадано <b id="doneScore">0</b> слів</p>
+    <button class="start-btn" id="againBtn">Новий хід</button>
+  </div>
+</main>
+
+<div class="rule-foot">Онлайн: грай у себе, екран не показуй, саме слово не вимовляй</div>
+
+<button class="sound-toggle" id="soundToggle" aria-pressed="true">
+  <span class="ico" id="soundIco"></span><span id="soundLabel">Звук</span>
+</button>
+
+<script>
+const WORDS = ["Запара","нарада","кориця","понеділок","діагностика","мама","таблиця","Авраменко","співбесіда","балкон","дзвінок","худі","НДА","родина","свічка","сіль","дружба","підвищення","мишка","звіт","ноутбук","пейволл","лампа","кенгуру","атестат"];
+const N = WORDS.length;
+const SECONDS = 60;
+
+const byId = id => document.getElementById(id);
+const panelIdle=byId("panelIdle"), panelPlay=byId("panelPlay"), panelDone=byId("panelDone");
+const startBtn=byId("startBtn"), againBtn=byId("againBtn"), okBtn=byId("okBtn"), skipBtn=byId("skipBtn");
+const wordEl=byId("word"), scoreNum=byId("scoreNum"), doneScore=byId("doneScore");
+const timer=byId("timer"), timerBar=byId("timerBar"), timeNum=byId("timeNum");
+
+// bag: no repeats until all 25 shown, then reshuffle
+let bag=[];
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function nextWord(){ if(!bag.length) bag=shuffle(Array.from({length:N},(_,i)=>i)); return WORDS[bag.pop()]; }
+
+const C=2*Math.PI*54; timerBar.style.strokeDasharray=C.toFixed(2);
+let score=0, endTime=0, remainingMs=SECONDS*1000, running=false, rafId=null, lastBeep=null;
+
+function fitText(el,max,min){ el.style.fontSize=max+"px"; let s=max;
+  while(s>min && (el.scrollHeight>el.clientHeight+1 || el.scrollWidth>el.clientWidth+1)){ s--; el.style.fontSize=s+"px"; } }
+function showWord(){
+  wordEl.textContent = nextWord();
+  const h = wordEl.parentElement.clientHeight || 180;
+  fitText(wordEl, Math.max(22, Math.min(54, Math.round(h*0.42))), 18);
+}
+
+function startRound(){
+  score=0; scoreNum.textContent="0";
+  panelIdle.hidden=true; panelDone.hidden=true; panelPlay.hidden=false;
+  timer.classList.remove("warn","danger","done"); timerBar.style.strokeDashoffset="0"; timeNum.textContent=SECONDS;
+  ensureAudio();
+  requestAnimationFrame(()=>requestAnimationFrame(showWord));
+  remainingMs=SECONDS*1000; endTime=performance.now()+remainingMs; running=true; lastBeep=null;
+  cancelAnimationFrame(rafId); loop();
+}
+function loop(){
+  remainingMs=Math.max(0, endTime-performance.now());
+  render(remainingMs);
+  if(remainingMs<=0){ endRound(); return; }
+  const whole=Math.ceil(remainingMs/1000);
+  if(whole<=10 && whole!==lastBeep){ lastBeep=whole; beep(880,0.08,0.16); }
+  rafId=requestAnimationFrame(loop);
+}
+function render(ms){
+  const sec=Math.ceil(ms/1000); timeNum.textContent=sec;
+  const frac=ms/(SECONDS*1000); timerBar.style.strokeDashoffset=(C*(1-frac)).toFixed(2);
+  timer.classList.toggle("warn", sec<=20&&sec>10);
+  timer.classList.toggle("danger", sec<=10);
+}
+function endRound(){
+  running=false; timer.classList.add("danger","done"); buzzer();
+  doneScore.textContent=score;
+  panelPlay.hidden=true; panelDone.hidden=false;
+}
+function correct(){ if(!running) return; score++; scoreNum.textContent=score; ding(); showWord(); }
+function skip(){ if(!running) return; blip(); showWord(); }
+
+okBtn.addEventListener("click", correct);
+skipBtn.addEventListener("click", skip);
+startBtn.addEventListener("click", startRound);
+againBtn.addEventListener("click", startRound);
+document.addEventListener("keydown", e=>{
+  if(!panelPlay.hidden){
+    if(e.code==="Space"||e.key==="ArrowRight"){ e.preventDefault(); correct(); }
+    else if(e.key==="ArrowDown"||e.key.toLowerCase()==="s"){ e.preventDefault(); skip(); }
+  } else if(e.code==="Space"||e.key==="Enter"){ e.preventDefault(); startRound(); }
+});
+
+// ---- Sound ----
+let actx=null, master=null, soundOn=true;
+function ensureAudio(){
+  if(!soundOn) return;
+  if(actx){ if(actx.state==="suspended") actx.resume(); return; }
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC){ soundOn=false; renderSound(); return; }
+  actx=new AC(); master=actx.createGain(); master.gain.value=0.75; master.connect(actx.destination);
+}
+function tone(type,f,st,dur,vol){
+  const o=actx.createOscillator(), g=actx.createGain(); o.type=type; o.frequency.value=f;
+  g.gain.setValueAtTime(0.0001,st); g.gain.exponentialRampToValueAtTime(vol,st+0.02); g.gain.exponentialRampToValueAtTime(0.0001,st+dur);
+  o.connect(g); g.connect(master); o.start(st); o.stop(st+dur+0.02);
+}
+function beep(f,dur,vol){ ensureAudio(); if(!soundOn||!actx) return; tone("sine",f,actx.currentTime,dur,vol); }
+function ding(){ ensureAudio(); if(!soundOn||!actx) return; const t=actx.currentTime; tone("triangle",659.25,t,0.18,0.24); tone("triangle",987.77,t+0.07,0.22,0.22); }
+function blip(){ ensureAudio(); if(!soundOn||!actx) return; tone("sine",300,actx.currentTime,0.12,0.18); }
+function buzzer(){ ensureAudio(); if(!soundOn||!actx) return; const t=actx.currentTime; [392,330,262].forEach((f,i)=>tone("sawtooth",f,t+i*0.16,0.34,0.3)); }
+
+const soundToggle=byId("soundToggle"), soundLabel=byId("soundLabel"), soundIco=byId("soundIco");
+const ICON_ON='<svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 4V5L8 9H4Z" fill="#56433b"/><path d="M16 8.5a4 4 0 0 1 0 7" stroke="#3DB4BF" stroke-width="2" stroke-linecap="round"/></svg>';
+const ICON_OFF='<svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 4V5L8 9H4Z" fill="#56433b"/><path d="m16 9 5 6M21 9l-5 6" stroke="#9b827c" stroke-width="2" stroke-linecap="round"/></svg>';
+function renderSound(){ soundToggle.classList.toggle("off",!soundOn); soundToggle.setAttribute("aria-pressed",String(soundOn));
+  soundLabel.textContent=soundOn?"Звук":"Без звуку"; soundIco.innerHTML=soundOn?ICON_ON:ICON_OFF; }
+soundToggle.addEventListener("click", ()=>{ soundOn=!soundOn; if(soundOn) ensureAudio(); renderSound(); });
+renderSound();
+</script>
+</body>
+</html>
