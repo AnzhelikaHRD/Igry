@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KEVIN · Ігри для команди</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{ --yellow:#FFD300; --yellow-deep:#F0BD40; --turq:#3DB4BF; --turq-deep:#2c8f99; --orange:#EB7C22;
+    --ink:#56433b; --ink-deep:#453636; --cream:#FFFDF6; --surface:#ffffff; --shadow:rgba(86,67,59,.18); }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:"Montserrat",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);
+    background:radial-gradient(120% 90% at 50% -10%, #FFF3CF 0%, var(--cream) 55%, #FFFBF0 100%);min-height:100dvh}
+  .hub{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(12px,2.6vh,24px);padding:clamp(16px,3vh,30px) 18px;text-align:center}
+  .brand{height:clamp(36px,5.5vh,46px)} .brand svg{height:100%;width:auto;display:block}
+  .hub h1{font-weight:900;font-size:clamp(25px,4.6vw,40px);color:var(--ink-deep);letter-spacing:-.02em;line-height:1.05}
+  .hub .sub{font-weight:600;font-size:clamp(13px,2.2vw,16px);color:var(--ink);opacity:.72;margin-top:4px}
+  .games{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(12px,1.8vw,18px);width:min(94vw,760px)}
+  .game-card{position:relative;background:var(--surface);border:2px solid rgba(86,67,59,.10);border-radius:22px;
+    padding:clamp(16px,2.4vh,24px) clamp(16px,1.6vw,22px);cursor:pointer;text-align:left;text-decoration:none;color:inherit;
+    display:flex;align-items:center;gap:16px;box-shadow:0 14px 30px -16px var(--shadow);
+    transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;-webkit-tap-highlight-color:transparent}
+  .game-card:hover{transform:translateY(-4px);box-shadow:0 24px 42px -18px var(--shadow);border-color:var(--accent)}
+  .game-card:active{transform:translateY(-1px)}
+  .game-card:focus-visible{outline:3px solid var(--turq);outline-offset:3px}
+  .game-card .ic{width:clamp(52px,7vw,64px);height:clamp(52px,7vw,64px);border-radius:16px;display:flex;align-items:center;justify-content:center;background:var(--accent-soft);flex:0 0 auto}
+  .game-card .ic svg{width:64%;height:64%;display:block}
+  .game-card .txt{display:flex;flex-direction:column;gap:3px}
+  .game-card h2{font-weight:800;font-size:clamp(16px,2vw,20px);color:var(--ink-deep);line-height:1.14}
+  .game-card p{font-weight:600;font-size:clamp(12px,1.4vw,14px);color:var(--ink);opacity:.72;line-height:1.3}
+  .c-wheel{--accent:var(--yellow-deep);--accent-soft:rgba(255,211,0,.16)}
+  .c-words{--accent:var(--turq);--accent-soft:rgba(61,180,191,.14)}
+  .c-common{--accent:var(--ink);--accent-soft:rgba(86,67,59,.10)}
+  .c-talk{--accent:var(--orange);--accent-soft:rgba(235,124,34,.14)}
+  .hub .foot{font-size:12px;font-weight:600;color:var(--ink);opacity:.5;letter-spacing:.03em}
+  @media (max-width:620px){
+    .games{grid-template-columns:1fr;width:min(94vw,440px);gap:10px}
+    .game-card{padding:13px 15px;gap:13px}
+    .game-card .ic{width:48px;height:48px;border-radius:13px}
+  }
+</style>
+</head>
+<body>
+<div class="hub">
+  <span class="brand" aria-label="KEVIN"><svg viewBox="0 0 561 350" xmlns="http://www.w3.org/2000/svg" role="img">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M286.123 54.5387C281.131 50.4673 267.982 49.1438 259.781 54.5387L287.116 20.5001H296.798L286.066 54.5387H286.123Z" fill="#E4B472"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M287.168 20.5008L303.425 0L296.85 20.5008H287.168Z" fill="#453636"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M319.611 20.5008L303.354 0L309.914 20.5008H319.611Z" fill="#9B827C"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M309.915 20.5008L303.354 0L296.852 20.5008H309.915Z" fill="#5A4A4A"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M320.702 54.5819L309.913 20.5001H296.85L286.103 54.6682C297.54 48.3957 309.208 48.5683 320.702 54.6682V54.5819Z" fill="#F4D592"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M320.66 54.5387C326.544 49.6185 339.363 48.7841 346.887 54.5387L319.552 20.5001H309.856L320.603 54.5387H320.66Z" fill="#FDFAD7"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M286.134 191.748H259.519L259.778 54.5431C268.573 48.3185 277.349 48.3185 286.106 54.5431V191.748H286.134Z" fill="#DE8E2B"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M320.564 192.107L286.122 191.748V54.5431C297.574 48.3185 309.054 48.3185 320.564 54.5431V192.107Z" fill="#F0BD40"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M346.915 191.748H320.3L320.559 54.5431C329.354 48.3185 338.13 48.3185 346.886 54.5431V191.748H346.915Z" fill="#F2D065"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M259.543 180.021L238.467 203.24C235.906 203.298 234.741 201.859 234.971 198.924C234.971 160.685 231.935 147.406 259.788 116.202L259.543 180.064V180.021Z" fill="#5A4A4A"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M259.798 116.159L253.094 124.071L252.849 187.401L259.553 179.762L259.798 116.159Z" fill="#453636"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M303.008 82.5349C305.529 82.5349 307.993 83.2824 310.089 84.683C312.186 86.0836 313.819 88.0744 314.784 90.4035C315.749 92.7326 316.001 95.2955 315.509 97.7681C315.018 100.241 313.804 102.512 312.021 104.294C310.238 106.077 307.967 107.291 305.495 107.783C303.022 108.275 300.459 108.022 298.13 107.058C295.801 106.093 293.81 104.459 292.409 102.363C291.009 100.267 290.261 97.8024 290.261 95.2813C290.261 91.9008 291.604 88.6586 293.995 86.2682C296.385 83.8778 299.627 82.5349 303.008 82.5349ZM303.008 70.1912C307.97 70.1912 312.821 71.6627 316.947 74.4196C321.073 77.1766 324.289 81.0951 326.188 85.6798C328.087 90.2644 328.584 95.3092 327.616 100.176C326.648 105.043 324.258 109.514 320.749 113.023C317.24 116.532 312.77 118.921 307.903 119.889C303.036 120.858 297.991 120.361 293.406 118.462C288.822 116.563 284.903 113.347 282.146 109.221C279.389 105.095 277.918 100.244 277.918 95.2813C277.916 91.9859 278.563 88.7225 279.824 85.6775C281.084 82.6326 282.932 79.8659 285.262 77.5357C287.592 75.2055 290.359 73.3574 293.404 72.0972C296.449 70.837 299.712 70.1893 303.008 70.1912Z" fill="white"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M259.689 191.928H346.973V201.02C346.961 204.262 345.667 207.368 343.373 209.659C341.079 211.951 337.972 213.241 334.73 213.248H271.903C268.661 213.241 265.554 211.951 263.26 209.659C260.966 207.368 259.672 204.262 259.661 201.02V191.928H259.689Z" fill="#3DB4BF"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M303.008 81.1552C305.806 81.1552 308.541 81.9849 310.867 83.5395C313.193 85.0941 315.005 87.3036 316.075 89.8886C317.145 92.4735 317.424 95.3177 316.878 98.0614C316.331 100.805 314.982 103.325 313.003 105.302C311.024 107.279 308.503 108.625 305.758 109.169C303.014 109.713 300.17 109.431 297.586 108.358C295.003 107.286 292.795 105.471 291.243 103.144C289.69 100.816 288.863 98.0804 288.866 95.2827C288.87 91.5345 290.362 87.9412 293.013 85.2921C295.665 82.6431 299.26 81.1551 303.008 81.1552ZM303.008 83.5433C305.334 83.5433 307.607 84.233 309.54 85.5252C311.473 86.8174 312.98 88.6539 313.869 90.8025C314.758 92.951 314.99 95.3151 314.535 97.5955C314.081 99.8759 312.96 101.97 311.314 103.613C309.669 105.257 307.574 106.375 305.293 106.827C303.012 107.279 300.648 107.044 298.5 106.152C296.353 105.26 294.518 103.752 293.228 101.817C291.939 99.8819 291.252 97.608 291.255 95.2827C291.255 93.7399 291.559 92.2122 292.15 90.7869C292.74 89.3617 293.606 88.0669 294.698 86.9766C295.79 85.8863 297.085 85.0219 298.511 84.4328C299.937 83.8437 301.465 83.5414 303.008 83.5433Z" fill="#D1D3D5"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M303.008 83.5434C305.333 83.5434 307.606 84.2331 309.54 85.5253C311.473 86.8174 312.979 88.654 313.869 90.8025C314.758 92.9511 314.99 95.3152 314.535 97.5956C314.08 99.876 312.959 101.97 311.314 103.614C309.669 105.257 307.573 106.375 305.292 106.827C303.011 107.279 300.648 107.044 298.5 106.152C296.353 105.26 294.518 103.752 293.228 101.817C291.938 99.882 291.251 97.6081 291.254 95.2828C291.254 93.74 291.558 92.2123 292.149 90.787C292.74 89.3618 293.606 88.067 294.698 86.9767C295.789 85.8864 297.085 85.022 298.511 84.4329C299.937 83.8437 301.465 83.5415 303.008 83.5434Z" fill="#76CFE5"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M301.131 88.6394C308.396 84.8557 315.747 95.286 308.511 101.415C309.691 95.238 307.231 90.9796 301.131 88.6394Z" fill="white"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M346.948 180.367L368.038 203.587C370.58 203.587 371.745 202.148 371.534 199.271C371.534 161.046 374.57 147.752 346.703 116.562L346.948 180.424V180.367Z" fill="#5A4A4A"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M346.789 116.82L353.493 124.733L353.738 188.063L347.034 180.423L346.789 116.82Z" fill="#453636"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M309.053 136.47L307.024 199.454C306.449 217.438 299.831 218.272 299.256 199.454L297.241 136.671C296.752 121.22 309.513 122.285 309.053 136.413V136.47Z" fill="#5A4A4A"/>
+      <path d="M0 237.708H30.7009V282.651L68.8397 237.708H105.238L63.3009 285.342L106.662 348.484H69.7892L41.9368 307.339L30.7009 319.841V348.484H0V237.708Z" fill="#56433b"/>
+      <path d="M131.351 237.708H220.447V263.819H161.735V280.594H214.908V304.807H161.735V322.387H221.238V348.484H131.351V237.708Z" fill="#56433b"/>
+      <path d="M243.869 237.708H278.21L303.372 307.828L328.534 237.708H362.242L317.298 349.275H288.813L243.869 237.708Z" fill="#56433b"/>
+      <path d="M389.457 348.484H420.316V237.708H389.457V348.484Z" fill="#56433b"/>
+      <path d="M456.395 237.708H485.039L530.616 296.261V237.708H561V348.484H534.097L486.78 287.715V348.484H456.395V237.708Z" fill="#56433b"/>
+      <path d="M284.999 237.968L304.334 282.149L322.317 237.853L284.999 237.968Z" fill="#EFBC3F"/>
+      <path d="M295.771 237.91L304.533 257.922L312.676 237.853L295.771 237.91Z" fill="white"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M328.535 237.895L303.373 307.829L278.211 237.895" fill="#EB7C22"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M319.988 237.895L303.055 284.954L286.122 237.895" fill="#F0BD40"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M311.238 237.895L303.052 260.669L294.852 237.895" fill="white"/>
+    </svg></span>
+  <div>
+    <h1>Яку гру обираєте?</h1>
+    <p class="sub">Оберіть гру для розминки на стратегічній сесії</p>
+  </div>
+  <div class="games">
+    <a class="game-card c-wheel" href="kevin-koleso-energii.html">
+      <span class="ic"><svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="26" r="16" fill="#FFD300" stroke="#56433b" stroke-width="2.5"/><path d="M24 10v32M8 26h32M13 15l22 22M35 15L13 37" stroke="#56433b" stroke-width="1.8" opacity=".45"/><circle cx="24" cy="26" r="4.2" fill="#fff" stroke="#56433b" stroke-width="2.5"/><path d="M24 3l5.2 8.5H18.8z" fill="#3DB4BF" stroke="#56433b" stroke-width="1.6" stroke-linejoin="round"/></svg></span>
+      <span class="txt"><h2>Колесо енергії</h2><p>Крути колесо — і отримай заряд на день</p></span>
+    </a>
+    <a class="game-card c-words" href="kevin-tri-slova.html">
+      <span class="ic"><svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="14" width="22" height="28" rx="4" fill="#fff" stroke="#56433b" stroke-width="2.5" transform="rotate(-9 20 28)"/><rect x="17" y="9" width="22" height="28" rx="4" fill="#3DB4BF" stroke="#56433b" stroke-width="2.5"/><path d="M22 18h12M22 24h12M22 30h8" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg></span>
+      <span class="txt"><h2>Три слова — одне речення</h2><p>Збери речення з трьох слів за 60 секунд</p></span>
+    </a>
+    <a class="game-card c-common" href="kevin-shcho-spilnoho.html">
+      <span class="ic"><svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="19" cy="24" r="12.5" fill="#FFD300" fill-opacity=".88" stroke="#56433b" stroke-width="2.5"/><circle cx="29" cy="24" r="12.5" fill="#3DB4BF" fill-opacity=".7" stroke="#56433b" stroke-width="2.5"/></svg></span>
+      <span class="txt"><h2>Що спільного?</h2><p>Знайди спільне між двома поняттями</p></span>
+    </a>
+    <a class="game-card c-talk" href="kevin-poyasny.html">
+      <span class="ic"><svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 13a4 4 0 0 1 4-4h26a4 4 0 0 1 4 4v15a4 4 0 0 1-4 4H21l-8 7v-7h-2a4 4 0 0 1-4-4z" fill="#EB7C22" fill-opacity=".92" stroke="#56433b" stroke-width="2.5" stroke-linejoin="round"/><circle cx="18" cy="20.5" r="2.3" fill="#fff"/><circle cx="24" cy="20.5" r="2.3" fill="#fff"/><circle cx="30" cy="20.5" r="2.3" fill="#fff"/></svg></span>
+      <span class="txt"><h2>Поясни, не називаючи</h2><p>Поясни слово, не вживаючи його — команда вгадує</p></span>
+    </a>
+  </div>
+  <div class="foot">KEVIN · Ігри для команди</div>
+</div>
+</body>
+</html>
