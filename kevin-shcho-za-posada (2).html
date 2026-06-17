@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KEVIN · Що за посада?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --yellow:#FFD300; --yellow-deep:#F0BD40; --turq:#3DB4BF; --turq-deep:#2c8f99;
+    --orange:#EB7C22; --red:#E2574C; --green:#3DBE7A; --green-deep:#2fa566;
+    --ink:#56433b; --ink-deep:#453636; --cream:#FFFDF6; --surface:#ffffff; --shadow:rgba(86,67,59,.18);
+    --p1:#FFE283; --p2:#A7E3E9; --p3:#F9C098; --p4:#FFDA4D;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{height:100%}
+  body{font-family:"Montserrat",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);height:100dvh;overflow:hidden;
+    background:radial-gradient(120% 90% at 50% -10%, #FFF3CF 0%, var(--cream) 55%, #FFFBF0 100%)}
+  .back-link{position:fixed;top:max(10px,env(safe-area-inset-top));left:10px;z-index:60;display:inline-flex;align-items:center;gap:6px;
+    font-family:"Montserrat",system-ui,sans-serif;font-weight:800;font-size:13px;color:#56433b;text-decoration:none;
+    background:rgba(255,255,255,.96);border:2px solid rgba(86,67,59,.16);border-radius:999px;padding:8px 14px 8px 11px;
+    box-shadow:0 8px 20px -6px rgba(86,67,59,.18);-webkit-tap-highlight-color:transparent}
+  .back-link:active{transform:translateY(1px)}
+
+  .wrap{max-width:min(98vw,1180px);height:100dvh;margin:0 auto;padding:clamp(10px,2vh,18px) 12px;
+    display:flex;flex-direction:column;align-items:center;text-align:center;gap:clamp(5px,1vh,11px)}
+  .brand{height:clamp(34px,5vh,44px)} .brand svg{height:100%;width:auto;display:block}
+  h1{font-weight:900;font-size:clamp(26px,5vw,42px);letter-spacing:-.02em;line-height:1.04;color:var(--ink-deep)}
+  h1 .spark{color:var(--yellow-deep)}
+  .subtitle{font-weight:600;font-size:clamp(13px,2.2vw,16px);color:var(--ink);opacity:.74;max-width:34ch}
+  .count-pill{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:2px solid var(--yellow);
+    color:var(--ink-deep);font-weight:700;font-size:13px;padding:6px 14px;border-radius:999px;box-shadow:0 6px 18px var(--shadow)}
+  .count-pill b{color:var(--yellow-deep);font-weight:900}
+
+  .controls{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center}
+  .btn{font-family:inherit;font-weight:800;font-size:14px;color:var(--ink-deep);background:#fff;
+    border:2px solid rgba(86,67,59,.16);border-radius:999px;padding:9px 16px;cursor:pointer;
+    box-shadow:0 8px 20px -8px var(--shadow);transition:transform .12s ease, box-shadow .12s ease;-webkit-tap-highlight-color:transparent;
+    display:inline-flex;align-items:center;gap:8px}
+  .btn:hover{transform:translateY(-2px)} .btn:active{transform:translateY(1px)}
+  .btn[hidden]{display:none}
+  .btn.primary{background:var(--yellow);border-color:var(--yellow-deep)}
+  .btn.ghost{background:rgba(255,255,255,.7)}
+  .btn.good{background:var(--green);border-color:var(--green-deep);color:#fff}
+  .btn.bad{background:#fff;border-color:rgba(86,67,59,.22);color:var(--ink)}
+  .btn.off{opacity:.6}
+  .status{font-weight:700;font-size:13px;color:var(--ink);opacity:.78}
+  .status b{color:var(--ink-deep)}
+
+  .board-area{flex:1;min-height:0;width:100%;display:flex;align-items:center;justify-content:center}
+  .board{display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);gap:clamp(5px,1.1vmin,13px)}
+  @media (max-height:600px){ .subtitle{display:none} .count-pill{display:none} }
+
+  .note{position:relative;border:none;border-radius:6px;cursor:pointer;background:var(--paper,var(--p1));
+    transform:rotate(var(--rot,0deg));transition:transform .15s ease;-webkit-tap-highlight-color:transparent;outline:none;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 10px 20px -10px rgba(86,67,59,.45), inset 0 1px 0 rgba(255,255,255,.5)}
+  .note::after{content:"";position:absolute;right:0;bottom:0;width:0;height:0;border-style:solid;
+    border-width:0 0 18px 18px;border-color:transparent transparent rgba(86,67,59,.16) transparent}
+  .note::before{content:"";position:absolute;left:50%;top:6px;transform:translateX(-50%) rotate(-2deg);
+    width:42%;height:11px;background:rgba(255,255,255,.45);border-radius:2px}
+  .note:hover{transform:rotate(0deg) translateY(-3px) scale(1.04);z-index:3}
+  .note:focus-visible{outline:3px solid var(--turq);outline-offset:3px}
+  .note .num{font-weight:900;font-size:var(--num,22px);color:var(--ink-deep);opacity:.92}
+  .note .stamp{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:var(--num,30px);font-weight:900}
+  .note.used{cursor:default;opacity:.5;filter:grayscale(.45);box-shadow:none}
+  .note.used::before,.note.used::after{display:none}
+  .note.used:hover{transform:rotate(var(--rot,0deg))}
+  .note.used .num{opacity:.28}
+  .note.used .stamp{display:flex}
+  .note.guessed .stamp{color:var(--green-deep)}
+  .note.missed .stamp{color:#9b827c}
+
+  /* ---------- round modal ---------- */
+  .modal{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:18px;
+    background:rgba(69,54,54,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+  .modal[hidden]{display:none}
+  .sheet{position:relative;width:min(92vw,440px);background:var(--cream);border-radius:24px;
+    padding:clamp(22px,4vw,30px);box-shadow:0 30px 70px -20px rgba(69,54,54,.6);text-align:center;
+    display:flex;flex-direction:column;align-items:center;gap:clamp(11px,2.2vh,17px)}
+  .close{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;
+    background:rgba(86,67,59,.08);color:var(--ink);font-weight:800;font-size:15px;line-height:1}
+  .close:hover{background:rgba(86,67,59,.16)}
+  .rnum{font-weight:900;font-size:14px;letter-spacing:.05em;color:var(--ink);background:#fff;
+    border:2px solid rgba(86,67,59,.12);padding:5px 16px;border-radius:999px}
+  .timer{position:relative;width:clamp(96px,18vh,120px);height:clamp(96px,18vh,120px);flex:0 0 auto}
+  .timer svg{width:100%;height:100%;transform:rotate(-90deg)}
+  .timer .track{fill:none;stroke:rgba(86,67,59,.14);stroke-width:11}
+  .timer .bar{fill:none;stroke:var(--turq);stroke-width:11;stroke-linecap:round;transition:stroke .3s}
+  .timer .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:clamp(30px,6vh,42px);color:var(--ink-deep)}
+  .timer.warn .bar{stroke:var(--yellow-deep)} .timer.warn .num{color:var(--yellow-deep)}
+  .timer.danger .bar{stroke:var(--red)} .timer.danger .num{color:var(--red)}
+  .timer.done{animation:shake .4s}
+  @keyframes shake{10%,90%{transform:translateX(-2px)}30%,70%{transform:translateX(4px)}50%{transform:translateX(-5px)}}
+  .pos-wrap{width:100%;min-height:clamp(58px,10vh,84px);display:flex;align-items:center;justify-content:center}
+  .pos{font-weight:900;font-size:30px;line-height:1.1;color:var(--ink-deep);word-break:break-word}
+  .pos-hidden{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ink);opacity:.55;font-weight:700;font-size:13.5px}
+  .pos-hidden svg{width:30px;height:30px;opacity:.7}
+  [hidden]{display:none !important}
+  .hint2{font-weight:600;font-size:12.5px;color:var(--ink);opacity:.62;max-width:32ch}
+  .rbtns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;width:100%}
+
+  .conf{position:fixed;inset:0;pointer-events:none;z-index:90;overflow:hidden}
+  .conf i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(110vh) rotate(640deg)}}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);z-index:95;
+    background:var(--ink-deep);color:#fff;font-weight:800;font-size:14px;padding:11px 20px;border-radius:999px;
+    box-shadow:0 16px 34px -12px rgba(86,67,59,.5);opacity:0;pointer-events:none;transition:opacity .35s ease, transform .35s ease}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<a class="back-link" href="./">← Меню</a>
+<div class="wrap">
+  <span class="brand" aria-label="KEVIN"><svg viewBox="0 0 561 350" xmlns="http://www.w3.org/2000/svg" role="img">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M286.123 54.5387C281.131 50.4673 267.982 49.1438 259.781 54.5387L287.116 20.5001H296.798L286.066 54.5387H286.123Z" fill="#E4B472"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M287.168 20.5008L303.425 0L296.85 20.5008H287.168Z" fill="#453636"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M319.611 20.5008L303.354 0L309.914 20.5008H319.611Z" fill="#9B827C"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M309.915 20.5008L303.354 0L296.852 20.5008H309.915Z" fill="#5A4A4A"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M320.702 54.5819L309.913 20.5001H296.85L286.103 54.6682C297.54 48.3957 309.208 48.5683 320.702 54.6682V54.5819Z" fill="#F4D592"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M320.66 54.5387C326.544 49.6185 339.363 48.7841 346.887 54.5387L319.552 20.5001H309.856L320.603 54.5387H320.66Z" fill="#FDFAD7"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M286.134 191.748H259.519L259.778 54.5431C268.573 48.3185 277.349 48.3185 286.106 54.5431V191.748H286.134Z" fill="#DE8E2B"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M320.564 192.107L286.122 191.748V54.5431C297.574 48.3185 309.054 48.3185 320.564 54.5431V192.107Z" fill="#F0BD40"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M346.915 191.748H320.3L320.559 54.5431C329.354 48.3185 338.13 48.3185 346.886 54.5431V191.748H346.915Z" fill="#F2D065"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M259.543 180.021L238.467 203.24C235.906 203.298 234.741 201.859 234.971 198.924C234.971 160.685 231.935 147.406 259.788 116.202L259.543 180.064V180.021Z" fill="#5A4A4A"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M259.798 116.159L253.094 124.071L252.849 187.401L259.553 179.762L259.798 116.159Z" fill="#453636"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M303.008 82.5349C305.529 82.5349 307.993 83.2824 310.089 84.683C312.186 86.0836 313.819 88.0744 314.784 90.4035C315.749 92.7326 316.001 95.2955 315.509 97.7681C315.018 100.241 313.804 102.512 312.021 104.294C310.238 106.077 307.967 107.291 305.495 107.783C303.022 108.275 300.459 108.022 298.13 107.058C295.801 106.093 293.81 104.459 292.409 102.363C291.009 100.267 290.261 97.8024 290.261 95.2813C290.261 91.9008 291.604 88.6586 293.995 86.2682C296.385 83.8778 299.627 82.5349 303.008 82.5349ZM303.008 70.1912C307.97 70.1912 312.821 71.6627 316.947 74.4196C321.073 77.1766 324.289 81.0951 326.188 85.6798C328.087 90.2644 328.584 95.3092 327.616 100.176C326.648 105.043 324.258 109.514 320.749 113.023C317.24 116.532 312.77 118.921 307.903 119.889C303.036 120.858 297.991 120.361 293.406 118.462C288.822 116.563 284.903 113.347 282.146 109.221C279.389 105.095 277.918 100.244 277.918 95.2813C277.916 91.9859 278.563 88.7225 279.824 85.6775C281.084 82.6326 282.932 79.8659 285.262 77.5357C287.592 75.2055 290.359 73.3574 293.404 72.0972C296.449 70.837 299.712 70.1893 303.008 70.1912Z" fill="white"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M259.689 191.928H346.973V201.02C346.961 204.262 345.667 207.368 343.373 209.659C341.079 211.951 337.972 213.241 334.73 213.248H271.903C268.661 213.241 265.554 211.951 263.26 209.659C260.966 207.368 259.672 204.262 259.661 201.02V191.928H259.689Z" fill="#3DB4BF"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M303.008 81.1552C305.806 81.1552 308.541 81.9849 310.867 83.5395C313.193 85.0941 315.005 87.3036 316.075 89.8886C317.145 92.4735 317.424 95.3177 316.878 98.0614C316.331 100.805 314.982 103.325 313.003 105.302C311.024 107.279 308.503 108.625 305.758 109.169C303.014 109.713 300.17 109.431 297.586 108.358C295.003 107.286 292.795 105.471 291.243 103.144C289.69 100.816 288.863 98.0804 288.866 95.2827C288.87 91.5345 290.362 87.9412 293.013 85.2921C295.665 82.6431 299.26 81.1551 303.008 81.1552ZM303.008 83.5433C305.334 83.5433 307.607 84.233 309.54 85.5252C311.473 86.8174 312.98 88.6539 313.869 90.8025C314.758 92.951 314.99 95.3151 314.535 97.5955C314.081 99.8759 312.96 101.97 311.314 103.613C309.669 105.257 307.574 106.375 305.293 106.827C303.012 107.279 300.648 107.044 298.5 106.152C296.353 105.26 294.518 103.752 293.228 101.817C291.939 99.8819 291.252 97.608 291.255 95.2827C291.255 93.7399 291.559 92.2122 292.15 90.7869C292.74 89.3617 293.606 88.0669 294.698 86.9766C295.79 85.8863 297.085 85.0219 298.511 84.4328C299.937 83.8437 301.465 83.5414 303.008 83.5433Z" fill="#D1D3D5"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M303.008 83.5434C305.333 83.5434 307.606 84.2331 309.54 85.5253C311.473 86.8174 312.979 88.654 313.869 90.8025C314.758 92.9511 314.99 95.3152 314.535 97.5956C314.08 99.876 312.959 101.97 311.314 103.614C309.669 105.257 307.573 106.375 305.292 106.827C303.011 107.279 300.648 107.044 298.5 106.152C296.353 105.26 294.518 103.752 293.228 101.817C291.938 99.882 291.251 97.6081 291.254 95.2828C291.254 93.74 291.558 92.2123 292.149 90.787C292.74 89.3618 293.606 88.067 294.698 86.9767C295.789 85.8864 297.085 85.022 298.511 84.4329C299.937 83.8437 301.465 83.5415 303.008 83.5434Z" fill="#76CFE5"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M301.131 88.6394C308.396 84.8557 315.747 95.286 308.511 101.415C309.691 95.238 307.231 90.9796 301.131 88.6394Z" fill="white"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M346.948 180.367L368.038 203.587C370.58 203.587 371.745 202.148 371.534 199.271C371.534 161.046 374.57 147.752 346.703 116.562L346.948 180.424V180.367Z" fill="#5A4A4A"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M346.789 116.82L353.493 124.733L353.738 188.063L347.034 180.423L346.789 116.82Z" fill="#453636"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M309.053 136.47L307.024 199.454C306.449 217.438 299.831 218.272 299.256 199.454L297.241 136.671C296.752 121.22 309.513 122.285 309.053 136.413V136.47Z" fill="#5A4A4A"/>
+      <path d="M0 237.708H30.7009V282.651L68.8397 237.708H105.238L63.3009 285.342L106.662 348.484H69.7892L41.9368 307.339L30.7009 319.841V348.484H0V237.708Z" fill="#56433b"/>
+      <path d="M131.351 237.708H220.447V263.819H161.735V280.594H214.908V304.807H161.735V322.387H221.238V348.484H131.351V237.708Z" fill="#56433b"/>
+      <path d="M243.869 237.708H278.21L303.372 307.828L328.534 237.708H362.242L317.298 349.275H288.813L243.869 237.708Z" fill="#56433b"/>
+      <path d="M389.457 348.484H420.316V237.708H389.457V348.484Z" fill="#56433b"/>
+      <path d="M456.395 237.708H485.039L530.616 296.261V237.708H561V348.484H534.097L486.78 287.715V348.484H456.395V237.708Z" fill="#56433b"/>
+      <path d="M284.999 237.968L304.334 282.149L322.317 237.853L284.999 237.968Z" fill="#EFBC3F"/>
+      <path d="M295.771 237.91L304.533 257.922L312.676 237.853L295.771 237.91Z" fill="white"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M328.535 237.895L303.373 307.829L278.211 237.895" fill="#EB7C22"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M319.988 237.895L303.055 284.954L286.122 237.895" fill="#F0BD40"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M311.238 237.895L303.052 260.669L294.852 237.895" fill="white"/>
+    </svg></span>
+  <h1>Що за <span class="spark">посада?</span></h1>
+  <p class="subtitle">Один витягує стікер — команда вгадує посаду питаннями за 90 секунд</p>
+  <span class="count-pill"><b>25</b> посад</span>
+  <div class="controls">
+    <button class="btn primary" id="drawBtn">🎲 Витягнути випадковий</button>
+    <button class="btn ghost" id="resetBtn">Почати заново</button>
+    <button class="btn ghost" id="soundToggle" aria-pressed="true"><span id="soundIco"></span><span id="soundLabel">Звук</span></button>
+  </div>
+  <div class="status" id="status">Зіграно <b>0</b> / 25 · вгадано <b>0</b></div>
+  <div class="board-area"><div class="board" id="board"></div></div>
+</div>
+
+<div class="modal" id="round" hidden>
+  <div class="sheet">
+    <button class="close" id="cancelBtn" aria-label="Закрити">✕</button>
+    <div class="rnum" id="rnum">№1</div>
+    <div class="timer" id="timer"><svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="54"></circle><circle class="bar" id="timerBar" cx="60" cy="60" r="54"></circle></svg><div class="num" id="timeNum">90</div></div>
+    <div class="pos-wrap">
+      <div class="pos-hidden" id="posHidden"><svg viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke="#56433b" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="#56433b" stroke-width="2"/></svg>Посада прихована</div>
+      <span class="pos" id="rpos" hidden></span>
+    </div>
+    <p class="hint2" id="rhint">Дивиться лише той, хто витягнув. Решта вгадує посаду питаннями.</p>
+    <div class="rbtns">
+      <button class="btn primary" id="revealBtn">Показати посаду</button>
+      <button class="btn primary" id="startBtn" hidden>Старт · 90 сек</button>
+      <button class="btn ghost" id="pauseBtn" hidden>Пауза</button>
+      <button class="btn good" id="okBtn" hidden>Вгадали ✓</button>
+      <button class="btn bad" id="failBtn" hidden>Не вгадали ✕</button>
+    </div>
+  </div>
+</div>
+
+<div class="conf" id="conf"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const POSITIONS = [
+  "Фінансовий менеджер",
+  "HRG",
+  "Регіональний менеджер",
+  "Head of product",
+  "Прі-сейл",
+  "Персональний менеджер",
+  "Head of sales",
+  "Діагност",
+  "Рекрутер",
+  "HRD",
+  "Технічний спеціаліст",
+  "СММ",
+  "Маркетолог воронок",
+  "CFO",
+  "Куратор предмету",
+  "Методист",
+  "Менеджер кол центр",
+  "Head of marketing",
+  "CEO",
+  "Тренер відділу продажів",
+  "Сервіс менеджер",
+  "Менеджер дірект",
+  "Викладач курсу",
+  "Таргетолог",
+  "Перформенс маркетолог"
+];
+const N = POSITIONS.length;
+const SECONDS = 90;
+const PAPERS = ["var(--p1)","var(--p2)","var(--p3)","var(--p4)"];
+const byId = id => document.getElementById(id);
+const board=byId("board"), boardArea=document.querySelector(".board-area"), statusEl=byId("status"), conf=byId("conf"), toast=byId("toast");
+const modal=byId("round"), rnum=byId("rnum"), rpos=byId("rpos"), posHidden=byId("posHidden");
+const timer=byId("timer"), timerBar=byId("timerBar"), timeNum=byId("timeNum");
+const revealBtn=byId("revealBtn"), startBtn=byId("startBtn"), pauseBtn=byId("pauseBtn"), okBtn=byId("okBtn"), failBtn=byId("failBtn"), cancelBtn=byId("cancelBtn");
+
+let order=[];                 // order[i] = position index hidden under note i
+let used=new Set();           // note indices already played
+let guessedCount=0;
+let current=null;             // currently drawn note index
+const C=2*Math.PI*54; timerBar.style.strokeDasharray=C.toFixed(2);
+let endTime=0, remainingMs=SECONDS*1000, running=false, paused=false, rafId=null, lastBeep=null;
+
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+function buildBoard(){
+  order=shuffle([...Array(N).keys()]); used=new Set(); guessedCount=0;
+  board.innerHTML="";
+  for(let i=0;i<N;i++){
+    const n=document.createElement("button");
+    n.className="note";
+    n.style.setProperty("--paper",PAPERS[i%PAPERS.length]);
+    n.style.setProperty("--rot",(Math.random()*4-2).toFixed(2)+"deg");
+    n.dataset.i=i;
+    n.innerHTML='<span class="num">'+(i+1)+'</span><span class="stamp"></span>';
+    n.addEventListener("click",()=>{ if(!used.has(i)) openRound(i); });
+    board.appendChild(n);
+  }
+  updateStatus();
+  requestAnimationFrame(sizeBoard);
+}
+function updateStatus(){
+  statusEl.innerHTML="Зіграно <b>"+used.size+"</b> / "+N+" · вгадано <b>"+guessedCount+"</b>";
+}
+
+/* ---------- round ---------- */
+function openRound(i){
+  current=i;
+  rnum.textContent="№ "+(i+1);
+  rpos.textContent=POSITIONS[order[i]];
+  // reset UI to "hidden / not started"
+  posHidden.hidden=false; rpos.hidden=true;
+  revealBtn.hidden=false; startBtn.hidden=true; pauseBtn.hidden=true; okBtn.hidden=true; failBtn.hidden=true;
+  timer.classList.remove("warn","danger","done"); timerBar.style.strokeDashoffset="0"; timeNum.textContent=SECONDS;
+  running=false; paused=false; remainingMs=SECONDS*1000; lastBeep=null; cancelAnimationFrame(rafId);
+  modal.hidden=false;
+  ensureAudio();
+}
+function revealPos(){
+  posHidden.hidden=true; rpos.hidden=false;
+  revealBtn.hidden=true; startBtn.hidden=false;
+  fitPos();
+}
+function fitPos(){
+  let s=32; rpos.style.fontSize=s+"px";
+  const wrap=rpos.parentElement;
+  while(s>14 && (rpos.scrollWidth>wrap.clientWidth-8 || rpos.scrollHeight>wrap.clientHeight+1)){ s--; rpos.style.fontSize=s+"px"; }
+}
+function startTimer(){
+  startBtn.hidden=true; pauseBtn.hidden=false; okBtn.hidden=false; failBtn.hidden=false;
+  pauseBtn.textContent="Пауза";
+  timer.classList.remove("warn","danger","done");
+  running=true; paused=false; remainingMs=SECONDS*1000; endTime=performance.now()+remainingMs; lastBeep=null;
+  cancelAnimationFrame(rafId); loop();
+}
+function loop(){
+  remainingMs=Math.max(0,endTime-performance.now());
+  render(remainingMs);
+  if(remainingMs<=0){ timeUp(); return; }
+  const whole=Math.ceil(remainingMs/1000);
+  if(whole<=10 && whole!==lastBeep){ lastBeep=whole; beep(880,0.08,0.16); }
+  rafId=requestAnimationFrame(loop);
+}
+function render(ms){
+  const sec=Math.ceil(ms/1000); timeNum.textContent=sec;
+  const frac=ms/(SECONDS*1000); timerBar.style.strokeDashoffset=(C*(1-frac)).toFixed(2);
+  timer.classList.toggle("warn", sec<=30 && sec>10);
+  timer.classList.toggle("danger", sec<=10);
+}
+function timeUp(){
+  running=false; timer.classList.add("danger","done"); buzzer();
+  pauseBtn.hidden=true;  // only resolve buttons remain
+}
+function togglePause(){
+  if(!running && !paused) return;
+  if(!paused){ paused=true; running=false; cancelAnimationFrame(rafId); pauseBtn.textContent="Продовжити"; }
+  else{ paused=false; running=true; endTime=performance.now()+remainingMs; pauseBtn.textContent="Пауза"; loop(); }
+}
+function markUsed(i,guessed){
+  used.add(i);
+  if(guessed) guessedCount++;
+  const el=board.querySelector('.note[data-i="'+i+'"]');
+  if(el){ el.classList.add("used", guessed?"guessed":"missed"); el.querySelector(".stamp").textContent=guessed?"✓":"✕"; }
+  updateStatus();
+  if(used.size===N){ celebrate(); showToast("Усі 25 посад зіграно! 🎉"); }
+}
+function resolve(guessed){
+  if(current===null) return;
+  if(guessed){ ding(); confettiBurst(); } else { blip(); }
+  markUsed(current,guessed);
+  closeModal();
+}
+function closeModal(){
+  running=false; paused=false; cancelAnimationFrame(rafId);
+  modal.hidden=true; current=null;
+}
+function randomDraw(){
+  const free=[]; for(let i=0;i<N;i++) if(!used.has(i)) free.push(i);
+  if(!free.length){ showToast("Усі стікери зіграно — тисни «Почати заново»"); return; }
+  openRound(free[Math.floor(Math.random()*free.length)]);
+}
+
+revealBtn.addEventListener("click",revealPos);
+startBtn.addEventListener("click",startTimer);
+pauseBtn.addEventListener("click",togglePause);
+okBtn.addEventListener("click",()=>resolve(true));
+failBtn.addEventListener("click",()=>resolve(false));
+cancelBtn.addEventListener("click",closeModal);
+byId("drawBtn").addEventListener("click",randomDraw);
+byId("resetBtn").addEventListener("click",()=>{ closeModal(); buildBoard(); blip(); showToast("Нова гра"); });
+modal.addEventListener("click",e=>{ if(e.target===modal) closeModal(); });
+
+/* ---------- celebration ---------- */
+let toastT=null;
+function showToast(m){ toast.textContent=m; toast.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>toast.classList.remove("show"),2600); }
+function confettiBurst(n){ const colors=["#FFD300","#3DB4BF","#EB7C22","#F0BD40","#3DBE7A"]; n=n||34;
+  for(let i=0;i<n;i++){ const s=document.createElement("i"); s.style.left=Math.random()*100+"vw"; s.style.background=colors[i%colors.length];
+    s.style.animationDuration=(2+Math.random()*1.6)+"s"; s.style.animationDelay=(Math.random()*0.3)+"s"; conf.appendChild(s); setTimeout(()=>s.remove(),4200); } }
+function celebrate(){ confettiBurst(80); winSound(); }
+
+/* ---------- audio ---------- */
+let actx=null, master=null, soundOn=true;
+function ensureAudio(){ if(!soundOn) return; if(actx){ if(actx.state==="suspended") actx.resume(); return; }
+  const AC=window.AudioContext||window.webkitAudioContext; if(!AC){ soundOn=false; renderSound(); return; }
+  actx=new AC(); master=actx.createGain(); master.gain.value=0.75; master.connect(actx.destination); }
+function tone(type,f,st,dur,vol){ const o=actx.createOscillator(), g=actx.createGain(); o.type=type; o.frequency.value=f;
+  g.gain.setValueAtTime(0.0001,st); g.gain.exponentialRampToValueAtTime(vol,st+0.02); g.gain.exponentialRampToValueAtTime(0.0001,st+dur);
+  o.connect(g); g.connect(master); o.start(st); o.stop(st+dur+0.02); }
+function beep(f,dur,vol){ ensureAudio(); if(!soundOn||!actx) return; tone("sine",f,actx.currentTime,dur,vol); }
+function ding(){ ensureAudio(); if(!soundOn||!actx) return; const t=actx.currentTime; tone("triangle",659.25,t,0.18,0.24); tone("triangle",987.77,t+0.07,0.22,0.22); }
+function blip(){ ensureAudio(); if(!soundOn||!actx) return; tone("sine",300,actx.currentTime,0.12,0.16); }
+function buzzer(){ ensureAudio(); if(!soundOn||!actx) return; const t=actx.currentTime; [392,330,262].forEach((f,i)=>tone("sawtooth",f,t+i*0.16,0.34,0.3)); }
+function winSound(){ ensureAudio(); if(!soundOn||!actx) return; [523,659,784,1047].forEach((f,i)=>tone("triangle",f,actx.currentTime+i*0.11,0.16,0.18)); }
+
+const soundToggle=byId("soundToggle"), soundLabel=byId("soundLabel"), soundIco=byId("soundIco");
+const ICON_ON='<svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 4V5L8 9H4Z" fill="#56433b"/><path d="M16 8.5a4 4 0 0 1 0 7" stroke="#3DB4BF" stroke-width="2" stroke-linecap="round"/></svg>';
+const ICON_OFF='<svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 4V5L8 9H4Z" fill="#56433b"/><path d="m16 9 5 6M21 9l-5 6" stroke="#9b827c" stroke-width="2" stroke-linecap="round"/></svg>';
+function renderSound(){ soundToggle.classList.toggle("off",!soundOn); soundToggle.setAttribute("aria-pressed",String(soundOn));
+  soundLabel.textContent=soundOn?"Звук":"Без звуку"; soundIco.innerHTML=soundOn?ICON_ON:ICON_OFF; }
+soundToggle.addEventListener("click",()=>{ soundOn=!soundOn; if(soundOn) ensureAudio(); renderSound(); });
+renderSound();
+
+function sizeBoard(){
+  const r=boardArea.getBoundingClientRect();
+  const cols=5, rows=5;
+  const gap=parseFloat(getComputedStyle(board).gap)||10;
+  const RATIO=1.6, MAXH=190;
+  let cellH=(r.height-gap*(rows-1))/rows;
+  let cellW=(r.width -gap*(cols-1))/cols;
+  cellH=Math.min(cellH, MAXH);
+  cellW=Math.min(cellW, cellH*RATIO);   // fill width, capped to landscape
+  cellH=Math.min(cellH, cellW);          // never portrait (square on narrow screens)
+  cellW=Math.max(cellW,1); cellH=Math.max(cellH,1);
+  board.style.width =Math.floor(cellW*cols+gap*(cols-1))+"px";
+  board.style.height=Math.floor(cellH*rows+gap*(rows-1))+"px";
+  board.style.setProperty("--num",Math.round(Math.min(cellW,cellH)*0.42)+"px");
+}
+let szT=null;
+window.addEventListener("resize",()=>{ clearTimeout(szT); szT=setTimeout(sizeBoard,120); });
+
+buildBoard();
+</script>
+</body>
+</html>
