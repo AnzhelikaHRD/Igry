@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KEVIN · Хто перший?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --yellow:#FFD300;
+    --yellow-deep:#F0BD40;
+    --turq:#3DB4BF;
+    --turq-light:#76CFE5;
+    --ink:#56433b;
+    --ink-deep:#453636;
+    --cream:#FFFDF6;
+    --surface:#ffffff;
+    --shadow:rgba(86,67,59,.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:"Montserrat",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(120% 90% at 50% -10%, #FFF3CF 0%, var(--cream) 55%, #FFFBF0 100%);
+    overflow:hidden;
+  }
+
+  /* ---------- App layout: everything fits one screen ---------- */
+  .app{
+    --wheel: min(50vw, 86vh, 560px);
+    height:100vh;height:100dvh;
+    display:grid;
+    grid-template-columns:auto minmax(230px,330px);
+    grid-template-rows:auto auto;
+    grid-template-areas:"wheel brand" "wheel controls";
+    align-content:center;justify-content:center;align-items:center;
+    column-gap:clamp(24px,4vw,56px);
+    row-gap:clamp(10px,2vh,20px);
+    padding:clamp(12px,2.5vw,28px);
+    padding-bottom:max(clamp(12px,2.5vw,28px), env(safe-area-inset-bottom));
+  }
+  .wheel-col{grid-area:wheel;display:flex;align-items:center;justify-content:center;min-width:0}
+
+  /* ---------- Header ---------- */
+  header{grid-area:brand;align-self:end;display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:9px}
+  .brand{height:48px;width:auto}
+  .brand svg{height:100%;width:auto;display:block}
+  h1{
+    font-weight:900;
+    font-size:clamp(26px,4.4vw,40px);
+    letter-spacing:-.02em;
+    line-height:1.02;
+    color:var(--ink-deep);
+  }
+  h1 .spark{color:var(--yellow-deep)}
+  .subtitle{
+    font-weight:600;
+    font-size:clamp(14px,2.4vw,17px);
+    color:var(--ink);
+    opacity:.78;
+    max-width:34ch;
+  }
+  .count-pill{
+    margin-top:2px;
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--surface);
+    border:2px solid var(--yellow);
+    color:var(--ink-deep);
+    font-weight:700;font-size:13px;
+    padding:6px 14px;border-radius:999px;
+    box-shadow:0 6px 18px var(--shadow);
+  }
+  .count-pill b{color:var(--yellow-deep);font-weight:900}
+
+  /* ---------- Stage / wheel ---------- */
+  .stage{
+    position:relative;
+    width:var(--wheel);
+    aspect-ratio:1/1;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .wheel-shadow{
+    position:absolute;inset:6%;
+    border-radius:50%;
+    box-shadow:0 30px 60px -18px var(--shadow);
+  }
+  .wheel-svg{width:100%;height:100%;display:block;overflow:visible}
+  #wheel{
+    transform-origin:300px 300px;
+    transition:transform 5.4s cubic-bezier(.16,.84,.20,1);
+  }
+  .seg{stroke:#fffdf6;stroke-width:2.4;stroke-linejoin:round}
+  .seg-num{
+    font-weight:700;
+    font-size:20px;
+    text-anchor:middle;
+    dominant-baseline:central;
+    paint-order:stroke;
+    pointer-events:none;
+    user-select:none;
+  }
+  .rim{fill:none;stroke:var(--ink);stroke-width:7}
+  .rim-dot{fill:var(--yellow)}
+
+  /* pointer = rocket nose aimed at the wheel */
+  .pointer{
+    position:absolute;
+    top:-14px;left:50%;
+    width:54px;height:70px;
+    transform:translateX(-50%);
+    filter:drop-shadow(0 6px 8px rgba(69,54,54,.35));
+    z-index:5;
+  }
+  .pointer.kick{animation:kick .12s ease}
+  @keyframes kick{50%{transform:translateX(-50%) translateY(3px)}}
+
+  /* ---------- Spin button ---------- */
+  .controls{grid-area:controls;align-self:start;display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+  .spin-btn{
+    font-family:inherit;font-weight:800;
+    font-size:clamp(18px,3vw,22px);
+    letter-spacing:.01em;
+    color:var(--ink-deep);
+    background:linear-gradient(180deg,#FFE05B 0%,var(--yellow) 55%,var(--yellow-deep) 100%);
+    border:none;
+    padding:16px 46px;
+    border-radius:999px;
+    cursor:pointer;
+    box-shadow:0 10px 0 #d99e1f, 0 16px 26px -8px var(--shadow);
+    transition:transform .12s ease, box-shadow .12s ease, filter .2s;
+  }
+  .spin-btn:hover{filter:brightness(1.03)}
+  .spin-btn:active{transform:translateY(6px);box-shadow:0 4px 0 #d99e1f,0 8px 16px -8px var(--shadow)}
+  .spin-btn:focus-visible{outline:3px solid var(--turq);outline-offset:4px}
+  .spin-btn:disabled{cursor:default;filter:grayscale(.25) brightness(.97);opacity:.85;
+    transform:translateY(2px);box-shadow:0 8px 0 #d99e1f,0 10px 20px -10px var(--shadow)}
+  .hint{font-size:13px;font-weight:600;color:var(--ink);opacity:.6}
+  .sound-toggle{
+    display:inline-flex;align-items:center;gap:7px;margin-top:2px;
+    font-family:inherit;font-weight:600;font-size:13px;color:var(--ink);
+    background:var(--surface);
+    border:2px solid rgba(86,67,59,.18);
+    padding:7px 14px;border-radius:999px;cursor:pointer;
+    box-shadow:0 4px 12px var(--shadow);
+    transition:border-color .15s,opacity .15s;
+  }
+  .sound-toggle:hover{border-color:var(--turq)}
+  .sound-toggle:focus-visible{outline:3px solid var(--turq);outline-offset:3px}
+  .sound-toggle.off{opacity:.6}
+  .sound-toggle .ico{width:18px;height:18px;display:inline-flex}
+  .sound-toggle .ico svg{width:100%;height:100%}
+  .toggle-row{display:flex;flex-wrap:wrap;gap:8px}
+  .progress{font-size:13px;font-weight:700;color:var(--ink);opacity:.78;letter-spacing:.01em}
+  .reset-btn{
+    font-family:inherit;font-weight:800;font-size:15px;color:#fff;
+    background:var(--turq);border:none;border-radius:999px;
+    padding:11px 26px;cursor:pointer;
+    box-shadow:0 6px 0 #2c8f99;
+    transition:transform .1s ease,box-shadow .1s ease;
+  }
+  .reset-btn:hover{filter:brightness(1.03)}
+  .reset-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #2c8f99}
+  .reset-btn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+  .reset-btn[hidden]{display:none}
+  .seg{transition:opacity .3s ease}
+  .seg.used{opacity:.18}
+  .seg-num{transition:opacity .3s ease}
+  .seg-num.used{opacity:.28}
+
+  /* ---------- Result overlay ---------- */
+  .overlay{
+    position:fixed;inset:0;z-index:40;
+    display:none;
+    align-items:center;justify-content:center;
+    padding:22px;
+    background:rgba(69,54,54,.5);
+    backdrop-filter:blur(3px);
+  }
+  .overlay.show{display:flex;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .card{
+    position:relative;
+    width:min(560px,94vw);
+    background:var(--surface);
+    border-radius:26px;
+    padding:clamp(26px,4vw,42px) clamp(22px,4vw,40px) clamp(24px,4vw,34px);
+    text-align:center;
+    box-shadow:0 40px 80px -20px rgba(69,54,54,.5);
+    border:3px solid var(--yellow);
+    transform:translateY(18px) scale(.96);
+    animation:pop .42s cubic-bezier(.2,.9,.25,1.2) forwards;
+  }
+  @keyframes pop{to{transform:translateY(0) scale(1)}}
+  .card .badge{
+    position:absolute;top:-26px;left:50%;transform:translateX(-50%);
+    width:54px;height:54px;border-radius:50%;
+    background:var(--turq);
+    border:4px solid var(--surface);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 8px 18px var(--shadow);
+  }
+  .card .badge svg{width:30px;height:30px}
+  .result-label{
+    margin-top:10px;
+    font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--turq);
+  }
+  .result-num{
+    display:inline-block;margin:4px auto 2px;
+    font-weight:900;font-size:14px;color:var(--ink);opacity:.45;
+  }
+  .result-phrase{
+    font-weight:800;
+    font-size:clamp(20px,4.2vw,30px);
+    line-height:1.22;
+    letter-spacing:-.01em;
+    color:var(--ink-deep);
+    margin:8px 4px 22px;
+  }
+  .next-btn{
+    font-family:inherit;font-weight:800;font-size:17px;
+    color:var(--ink-deep);
+    background:var(--yellow);
+    border:none;border-radius:999px;
+    padding:14px 34px;cursor:pointer;
+    box-shadow:0 7px 0 #d99e1f;
+    transition:transform .1s ease,box-shadow .1s ease;
+  }
+  .next-btn:hover{filter:brightness(1.03)}
+  .next-btn:active{transform:translateY(5px);box-shadow:0 2px 0 #d99e1f}
+  .next-btn:focus-visible{outline:3px solid var(--turq);outline-offset:3px}
+
+  footer{position:fixed;left:0;right:0;bottom:10px;text-align:center;font-size:12px;font-weight:600;color:var(--ink);opacity:.45;letter-spacing:.04em;pointer-events:none}
+
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:60}
+
+  /* Stack on portrait / narrow screens: brand, wheel, button */
+  @media (max-width:860px), (orientation:portrait){
+    .app{
+      --wheel: min(90vw, 56vh);
+      grid-template-columns:1fr;
+      grid-template-rows:auto auto auto;
+      grid-template-areas:"brand" "wheel" "controls";
+      row-gap:clamp(8px,1.6vh,16px);
+      align-content:center;
+    }
+    header{align-items:center;text-align:center}
+    .controls{align-items:center}
+    .subtitle{max-width:30ch}
+    footer{display:none}
+  }
+  @media (max-height:560px) and (orientation:portrait){
+    .app{--wheel:min(78vw,52vh)}
+    .subtitle{display:none}
+  }
+  @media (max-width:430px){
+    .spin-btn{padding:15px 38px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    #wheel{transition:transform 1.1s ease-out}
+    .card,.overlay{animation:none}
+  }
+  .back-link{position:fixed;top:max(10px,env(safe-area-inset-top));left:10px;z-index:60;display:inline-flex;align-items:center;gap:6px;
+    font-family:"Montserrat",system-ui,sans-serif;font-weight:800;font-size:13px;color:#56433b;text-decoration:none;
+    background:rgba(255,255,255,.96);border:2px solid rgba(86,67,59,.16);border-radius:999px;padding:8px 14px 8px 11px;
+    box-shadow:0 8px 20px -6px rgba(86,67,59,.18);-webkit-tap-highlight-color:transparent}
+  .back-link:active{transform:translateY(1px)}
+</style>
+</head>
+<body>
+<a class="back-link" href="./">← Меню</a>
+<div class="app">
+
+<header>
+  <span class="brand" aria-label="KEVIN">
+    <svg viewBox="0 0 561 350" xmlns="http://www.w3.org/2000/svg" role="img">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M286.123 54.5387C281.131 50.4673 267.982 49.1438 259.781 54.5387L287.116 20.5001H296.798L286.066 54.5387H286.123Z" fill="#E4B472"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M287.168 20.5008L303.425 0L296.85 20.5008H287.168Z" fill="#453636"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M319.611 20.5008L303.354 0L309.914 20.5008H319.611Z" fill="#9B827C"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M309.915 20.5008L303.354 0L296.852 20.5008H309.915Z" fill="#5A4A4A"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M320.702 54.5819L309.913 20.5001H296.85L286.103 54.6682C297.54 48.3957 309.208 48.5683 320.702 54.6682V54.5819Z" fill="#F4D592"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M320.66 54.5387C326.544 49.6185 339.363 48.7841 346.887 54.5387L319.552 20.5001H309.856L320.603 54.5387H320.66Z" fill="#FDFAD7"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M286.134 191.748H259.519L259.778 54.5431C268.573 48.3185 277.349 48.3185 286.106 54.5431V191.748H286.134Z" fill="#DE8E2B"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M320.564 192.107L286.122 191.748V54.5431C297.574 48.3185 309.054 48.3185 320.564 54.5431V192.107Z" fill="#F0BD40"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M346.915 191.748H320.3L320.559 54.5431C329.354 48.3185 338.13 48.3185 346.886 54.5431V191.748H346.915Z" fill="#F2D065"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M259.543 180.021L238.467 203.24C235.906 203.298 234.741 201.859 234.971 198.924C234.971 160.685 231.935 147.406 259.788 116.202L259.543 180.064V180.021Z" fill="#5A4A4A"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M259.798 116.159L253.094 124.071L252.849 187.401L259.553 179.762L259.798 116.159Z" fill="#453636"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M303.008 82.5349C305.529 82.5349 307.993 83.2824 310.089 84.683C312.186 86.0836 313.819 88.0744 314.784 90.4035C315.749 92.7326 316.001 95.2955 315.509 97.7681C315.018 100.241 313.804 102.512 312.021 104.294C310.238 106.077 307.967 107.291 305.495 107.783C303.022 108.275 300.459 108.022 298.13 107.058C295.801 106.093 293.81 104.459 292.409 102.363C291.009 100.267 290.261 97.8024 290.261 95.2813C290.261 91.9008 291.604 88.6586 293.995 86.2682C296.385 83.8778 299.627 82.5349 303.008 82.5349ZM303.008 70.1912C307.97 70.1912 312.821 71.6627 316.947 74.4196C321.073 77.1766 324.289 81.0951 326.188 85.6798C328.087 90.2644 328.584 95.3092 327.616 100.176C326.648 105.043 324.258 109.514 320.749 113.023C317.24 116.532 312.77 118.921 307.903 119.889C303.036 120.858 297.991 120.361 293.406 118.462C288.822 116.563 284.903 113.347 282.146 109.221C279.389 105.095 277.918 100.244 277.918 95.2813C277.916 91.9859 278.563 88.7225 279.824 85.6775C281.084 82.6326 282.932 79.8659 285.262 77.5357C287.592 75.2055 290.359 73.3574 293.404 72.0972C296.449 70.837 299.712 70.1893 303.008 70.1912Z" fill="white"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M259.689 191.928H346.973V201.02C346.961 204.262 345.667 207.368 343.373 209.659C341.079 211.951 337.972 213.241 334.73 213.248H271.903C268.661 213.241 265.554 211.951 263.26 209.659C260.966 207.368 259.672 204.262 259.661 201.02V191.928H259.689Z" fill="#3DB4BF"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M303.008 81.1552C305.806 81.1552 308.541 81.9849 310.867 83.5395C313.193 85.0941 315.005 87.3036 316.075 89.8886C317.145 92.4735 317.424 95.3177 316.878 98.0614C316.331 100.805 314.982 103.325 313.003 105.302C311.024 107.279 308.503 108.625 305.758 109.169C303.014 109.713 300.17 109.431 297.586 108.358C295.003 107.286 292.795 105.471 291.243 103.144C289.69 100.816 288.863 98.0804 288.866 95.2827C288.87 91.5345 290.362 87.9412 293.013 85.2921C295.665 82.6431 299.26 81.1551 303.008 81.1552ZM303.008 83.5433C305.334 83.5433 307.607 84.233 309.54 85.5252C311.473 86.8174 312.98 88.6539 313.869 90.8025C314.758 92.951 314.99 95.3151 314.535 97.5955C314.081 99.8759 312.96 101.97 311.314 103.613C309.669 105.257 307.574 106.375 305.293 106.827C303.012 107.279 300.648 107.044 298.5 106.152C296.353 105.26 294.518 103.752 293.228 101.817C291.939 99.8819 291.252 97.608 291.255 95.2827C291.255 93.7399 291.559 92.2122 292.15 90.7869C292.74 89.3617 293.606 88.0669 294.698 86.9766C295.79 85.8863 297.085 85.0219 298.511 84.4328C299.937 83.8437 301.465 83.5414 303.008 83.5433Z" fill="#D1D3D5"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M303.008 83.5434C305.333 83.5434 307.606 84.2331 309.54 85.5253C311.473 86.8174 312.979 88.654 313.869 90.8025C314.758 92.9511 314.99 95.3152 314.535 97.5956C314.08 99.876 312.959 101.97 311.314 103.614C309.669 105.257 307.573 106.375 305.292 106.827C303.011 107.279 300.648 107.044 298.5 106.152C296.353 105.26 294.518 103.752 293.228 101.817C291.938 99.882 291.251 97.6081 291.254 95.2828C291.254 93.74 291.558 92.2123 292.149 90.787C292.74 89.3618 293.606 88.067 294.698 86.9767C295.789 85.8864 297.085 85.022 298.511 84.4329C299.937 83.8437 301.465 83.5415 303.008 83.5434Z" fill="#76CFE5"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M301.131 88.6394C308.396 84.8557 315.747 95.286 308.511 101.415C309.691 95.238 307.231 90.9796 301.131 88.6394Z" fill="white"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M346.948 180.367L368.038 203.587C370.58 203.587 371.745 202.148 371.534 199.271C371.534 161.046 374.57 147.752 346.703 116.562L346.948 180.424V180.367Z" fill="#5A4A4A"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M346.789 116.82L353.493 124.733L353.738 188.063L347.034 180.423L346.789 116.82Z" fill="#453636"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M309.053 136.47L307.024 199.454C306.449 217.438 299.831 218.272 299.256 199.454L297.241 136.671C296.752 121.22 309.513 122.285 309.053 136.413V136.47Z" fill="#5A4A4A"/>
+      <path d="M0 237.708H30.7009V282.651L68.8397 237.708H105.238L63.3009 285.342L106.662 348.484H69.7892L41.9368 307.339L30.7009 319.841V348.484H0V237.708Z" fill="#56433b"/>
+      <path d="M131.351 237.708H220.447V263.819H161.735V280.594H214.908V304.807H161.735V322.387H221.238V348.484H131.351V237.708Z" fill="#56433b"/>
+      <path d="M243.869 237.708H278.21L303.372 307.828L328.534 237.708H362.242L317.298 349.275H288.813L243.869 237.708Z" fill="#56433b"/>
+      <path d="M389.457 348.484H420.316V237.708H389.457V348.484Z" fill="#56433b"/>
+      <path d="M456.395 237.708H485.039L530.616 296.261V237.708H561V348.484H534.097L486.78 287.715V348.484H456.395V237.708Z" fill="#56433b"/>
+      <path d="M284.999 237.968L304.334 282.149L322.317 237.853L284.999 237.968Z" fill="#EFBC3F"/>
+      <path d="M295.771 237.91L304.533 257.922L312.676 237.853L295.771 237.91Z" fill="white"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M328.535 237.895L303.373 307.829L278.211 237.895" fill="#EB7C22"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M319.988 237.895L303.055 284.954L286.122 237.895" fill="#F0BD40"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M311.238 237.895L303.052 260.669L294.852 237.895" fill="white"/>
+    </svg>
+  </span>
+  <h1>Хто <span class="spark">перший?</span></h1>
+  <p class="subtitle">Крути колесо — і дізнайся, хто ходить наступним</p>
+  <span class="count-pill"><b>7</b> учасників</span>
+</header>
+
+<div class="wheel-col">
+<div class="stage">
+  <div class="wheel-shadow"></div>
+  <svg class="wheel-svg" viewBox="0 0 600 600" aria-hidden="true">
+    <g id="wheel"></g>
+    <circle cx="300" cy="300" r="282" class="rim"/>
+  </svg>
+
+  <!-- rocket-nose pointer aimed down into the wheel -->
+  <svg class="pointer" id="pointer" viewBox="0 0 60 80" aria-hidden="true">
+    <path d="M30 79 L9 32 Q9 7 30 2 Q51 7 51 32 Z" fill="#56433b"/>
+    <path d="M30 71 L17 34 Q17 15 30 11 Q43 15 43 34 Z" fill="#FFD300"/>
+    <circle cx="30" cy="31" r="8" fill="#3DB4BF" stroke="#fff" stroke-width="2.6"/>
+    <circle cx="30" cy="31" r="3" fill="#fff" opacity=".85"/>
+  </svg>
+</div>
+</div>
+
+<div class="controls">
+  <button class="spin-btn" id="spinBtn">Крутити</button>
+  <span class="hint" id="hint">Тисни «Крутити» — обрати учасника</span>
+  <div class="progress" id="progress">Обрано 0 / 7 · лишилось 7</div>
+  <button class="reset-btn" id="resetBtn" hidden>Новий круг</button>
+  <div class="toggle-row">
+    <button class="sound-toggle" id="soundToggle" aria-pressed="true">
+      <span class="ico" id="soundIco"></span><span id="soundLabel">Звук увімкнено</span>
+    </button>
+    <button class="sound-toggle" id="repeatToggle" aria-pressed="true">
+      <span class="ico" id="repeatIco"></span><span id="repeatLabel">Без повторів</span>
+    </button>
+  </div>
+</div>
+
+</div><!-- /.app -->
+
+<footer>KEVIN · Стратегічна сесія</footer>
+
+<!-- Result overlay -->
+<div class="overlay" id="overlay">
+  <div class="card" id="card">
+    <span class="badge">
+      <svg viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg">
+        <path d="M30 2 L51 49 Q51 74 30 79 Q9 74 9 49 Z" fill="#56433b"/>
+        <path d="M30 9 L17 47 Q17 66 30 70 Q43 66 43 47 Z" fill="#FFD300"/>
+        <circle cx="30" cy="49" r="8" fill="#fff"/>
+      </svg>
+    </span>
+    <div class="result-label">Випадає</div>
+    <div class="result-num" id="resultNum"></div>
+    <div class="result-phrase" id="resultPhrase" aria-live="polite"></div>
+    <button class="next-btn" id="nextBtn">Наступний учасник</button>
+  </div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+const NAMES = [
+  "Саїда", "Анастасія", "Ярослава", "Богдана", "Наталія", "Дмитро", "Анжеліка"
+];
+
+const COLORS = ["#FFD300", "#56433b", "#3DB4BF"];
+const TEXT_ON = ["#56433b", "#FFFDF6", "#FFFFFF"]; // number color per segment color
+const N = NAMES.length;
+const CX = 300, CY = 300, R = 274, SEG = 360 / N;
+
+// ---- Build wheel ----
+const wheel = document.getElementById("wheel");
+const SVGNS = "http://www.w3.org/2000/svg";
+const segPaths = [], segNums = [];
+
+function polar(angleDeg, radius){
+  const a = (angleDeg) * Math.PI / 180; // clockwise from top
+  return [CX + radius * Math.sin(a), CY - radius * Math.cos(a)];
+}
+
+for (let i = 0; i < N; i++){
+  const start = i * SEG, end = (i + 1) * SEG;
+  const [x0, y0] = polar(start, R);
+  const [x1, y1] = polar(end, R);
+  const largeArc = SEG > 180 ? 1 : 0;
+  const path = document.createElementNS(SVGNS, "path");
+  path.setAttribute("d", `M ${CX} ${CY} L ${x0.toFixed(2)} ${y0.toFixed(2)} A ${R} ${R} 0 ${largeArc} 1 ${x1.toFixed(2)} ${y1.toFixed(2)} Z`);
+  path.setAttribute("fill", COLORS[i % 3]);
+  path.setAttribute("class", "seg");
+  wheel.appendChild(path);
+  segPaths.push(path);
+
+  // number
+  const [tx, ty] = polar(start + SEG / 2, R * 0.6);
+  const t = document.createElementNS(SVGNS, "text");
+  t.setAttribute("x", tx.toFixed(2));
+  t.setAttribute("y", ty.toFixed(2));
+  t.setAttribute("class", "seg-num");
+  t.setAttribute("fill", TEXT_ON[i % 3]);
+  t.textContent = NAMES[i];
+  wheel.appendChild(t);
+  segNums.push(t);
+}
+// decorative dots on the rim
+for (let i = 0; i < N; i++){
+  const [dx, dy] = polar(i * SEG, R + 8);
+  const c = document.createElementNS(SVGNS, "circle");
+  c.setAttribute("cx", dx.toFixed(2));
+  c.setAttribute("cy", dy.toFixed(2));
+  c.setAttribute("r", "3.4");
+  c.setAttribute("class", "rim-dot");
+  document.querySelector(".wheel-svg").insertBefore(c, null);
+}
+// center hub
+const hub = document.createElementNS(SVGNS, "g");
+hub.innerHTML =
+  '<circle cx="300" cy="300" r="46" fill="#56433b"/>' +
+  '<circle cx="300" cy="300" r="38" fill="#FFD300"/>' +
+  '<circle cx="300" cy="300" r="15" fill="#3DB4BF" stroke="#fff" stroke-width="4"/>';
+document.querySelector(".wheel-svg").insertBefore(hub, null);
+
+// ---- Spin logic ----
+const spinBtn = document.getElementById("spinBtn");
+const hint = document.getElementById("hint");
+const pointer = document.getElementById("pointer");
+const overlay = document.getElementById("overlay");
+const resultPhrase = document.getElementById("resultPhrase");
+const resultNum = document.getElementById("resultNum");
+const nextBtn = document.getElementById("nextBtn");
+
+let rotation = 0;
+let spinning = false;
+let lastTarget = 0;
+
+function spin(){
+  if (spinning) return;
+  spinning = true;
+  spinBtn.disabled = true;
+  hint.textContent = "Запуск…";
+  pointer.classList.add("kick");
+  setTimeout(() => pointer.classList.remove("kick"), 140);
+
+  const pool = noRepeat ? ALL.filter(i => !used.has(i)) : ALL;
+  if (pool.length === 0){ spinning = false; spinBtn.disabled = true; return; }
+  lastTarget = pool[Math.floor(Math.random() * pool.length)];
+  const center = (lastTarget + 0.5) * SEG;            // clockwise angle of segment centre
+  const align = (360 - center) % 360;                 // rotation that brings centre to top
+  const jitter = (Math.random() - 0.5) * SEG * 0.6;   // cosmetic, stays inside segment
+  const spins = 6;
+  const currentMod = ((rotation % 360) + 360) % 360;
+  const delta = spins * 360 + (((align + jitter) - currentMod) % 360 + 360) % 360;
+  rotation += delta;
+  wheel.style.transform = `rotate(${rotation}deg)`;
+  ensureAudio();
+  startTicks();
+}
+
+wheel.addEventListener("transitionend", () => {
+  if (!spinning) return;
+  stopTicks();
+  reveal(lastTarget);
+  spinning = false;
+});
+
+function reveal(i){
+  resultNum.textContent = "";
+  resultPhrase.textContent = NAMES[i];
+  totalSpins++;
+  if (noRepeat) used.add(i);
+  updateBoard();
+  overlay.classList.add("show");
+  fireConfetti();
+  playWin();
+  nextBtn.focus();
+}
+
+function closeResult(){
+  overlay.classList.remove("show");
+  if (noRepeat && used.size >= N){
+    enterRoundComplete();
+  } else {
+    spinBtn.disabled = false;
+    hint.textContent = "Наступний — тисни «Крутити»";
+    spinBtn.focus();
+  }
+}
+
+spinBtn.addEventListener("click", spin);
+nextBtn.addEventListener("click", closeResult);
+overlay.addEventListener("click", (e) => { if (e.target === overlay) closeResult(); });
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && overlay.classList.contains("show")) closeResult();
+  if (e.code === "Space" && !overlay.classList.contains("show") && !spinning){
+    e.preventDefault(); spin();
+  }
+});
+
+// ---- Confetti (self-contained, brand colours) ----
+const canvas = document.getElementById("confetti");
+const ctx = canvas.getContext("2d");
+let parts = [], raf = null;
+const CONF_COLORS = ["#FFD300", "#F0BD40", "#3DB4BF", "#76CFE5", "#56433b", "#ffffff"];
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function sizeCanvas(){ canvas.width = innerWidth; canvas.height = innerHeight; }
+sizeCanvas();
+addEventListener("resize", sizeCanvas);
+
+function fireConfetti(){
+  if (reduceMotion) return;
+  const cx = innerWidth / 2, cy = innerHeight * 0.42;
+  const count = innerWidth < 480 ? 90 : 150;
+  for (let i = 0; i < count; i++){
+    const ang = Math.random() * Math.PI * 2;
+    const sp = 6 + Math.random() * 9;
+    parts.push({
+      x: cx, y: cy,
+      vx: Math.cos(ang) * sp,
+      vy: Math.sin(ang) * sp - 4,
+      g: 0.22 + Math.random() * 0.12,
+      w: 6 + Math.random() * 6, h: 9 + Math.random() * 7,
+      rot: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.3,
+      color: CONF_COLORS[(Math.random() * CONF_COLORS.length) | 0],
+      life: 0, max: 120 + Math.random() * 40
+    });
+  }
+  if (!raf) raf = requestAnimationFrame(tick);
+}
+
+function tick(){
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  parts = parts.filter(p => p.life < p.max && p.y < canvas.height + 40);
+  for (const p of parts){
+    p.life++; p.vy += p.g; p.x += p.vx; p.y += p.vy; p.vx *= 0.99; p.rot += p.vr;
+    const alpha = Math.max(0, 1 - p.life / p.max);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+    ctx.restore();
+  }
+  if (parts.length) raf = requestAnimationFrame(tick);
+  else { ctx.clearRect(0, 0, canvas.width, canvas.height); raf = null; }
+}
+
+// ---- Sound (Web Audio API, self-contained, no external files) ----
+let actx = null, master = null, noiseBuf = null;
+let soundOn = true;
+let tickRAF = null, lastTickIdx = null;
+
+function ensureAudio(){
+  if (!soundOn) return;
+  if (actx){ if (actx.state === "suspended") actx.resume(); return; }
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC){ soundOn = false; renderSound(); return; }
+  actx = new AC();
+  master = actx.createGain();
+  master.gain.value = 0.8;
+  master.connect(actx.destination);
+  const len = Math.floor(actx.sampleRate * 0.05);
+  noiseBuf = actx.createBuffer(1, len, actx.sampleRate);
+  const d = noiseBuf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+}
+
+function playTick(){
+  if (!soundOn || !actx) return;
+  const t = actx.currentTime;
+  const src = actx.createBufferSource(); src.buffer = noiseBuf;
+  const bp = actx.createBiquadFilter();
+  bp.type = "bandpass"; bp.frequency.value = 1500 + Math.random() * 500; bp.Q.value = 1.4;
+  const g = actx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.22, t + 0.002);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.035);
+  src.connect(bp); bp.connect(g); g.connect(master);
+  src.start(t); src.stop(t + 0.05);
+}
+
+function playWin(){
+  if (!soundOn || !actx) return;
+  const t = actx.currentTime;
+  const notes = [523.25, 659.25, 783.99, 1046.50]; // C5 E5 G5 C6
+  notes.forEach((f, i) => {
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = "triangle"; o.frequency.value = f;
+    const st = t + i * 0.085;
+    g.gain.setValueAtTime(0.0001, st);
+    g.gain.exponentialRampToValueAtTime(0.28, st + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, st + 0.55);
+    o.connect(g); g.connect(master);
+    o.start(st); o.stop(st + 0.6);
+  });
+}
+
+function currentWheelAngle(){
+  const tr = getComputedStyle(wheel).transform;
+  if (!tr || tr === "none") return 0;
+  const m = tr.match(/matrix\(([^)]+)\)/);
+  if (!m) return 0;
+  const p = m[1].split(",").map(Number);
+  const ang = Math.atan2(p[1], p[0]) * 180 / Math.PI;
+  return (ang % 360 + 360) % 360;
+}
+
+function startTicks(){
+  if (!soundOn) return;
+  lastTickIdx = null;
+  const loop = () => {
+    const idx = Math.floor(currentWheelAngle() / SEG);
+    if (lastTickIdx === null) lastTickIdx = idx;
+    else if (idx !== lastTickIdx){ playTick(); lastTickIdx = idx; }
+    tickRAF = requestAnimationFrame(loop);
+  };
+  tickRAF = requestAnimationFrame(loop);
+}
+
+function stopTicks(){
+  if (tickRAF) cancelAnimationFrame(tickRAF);
+  tickRAF = null;
+}
+
+const soundToggle = document.getElementById("soundToggle");
+const soundLabel = document.getElementById("soundLabel");
+const soundIco = document.getElementById("soundIco");
+const ICON_ON = '<svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 4V5L8 9H4Z" fill="#56433b"/><path d="M16 8.5a4 4 0 0 1 0 7" stroke="#3DB4BF" stroke-width="2" stroke-linecap="round"/><path d="M18.7 6a7 7 0 0 1 0 12" stroke="#3DB4BF" stroke-width="2" stroke-linecap="round"/></svg>';
+const ICON_OFF = '<svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 4V5L8 9H4Z" fill="#56433b"/><path d="m16 9 5 6M21 9l-5 6" stroke="#9b827c" stroke-width="2" stroke-linecap="round"/></svg>';
+function renderSound(){
+  soundToggle.classList.toggle("off", !soundOn);
+  soundToggle.setAttribute("aria-pressed", String(soundOn));
+  soundLabel.textContent = soundOn ? "Звук увімкнено" : "Звук вимкнено";
+  soundIco.innerHTML = soundOn ? ICON_ON : ICON_OFF;
+}
+soundToggle.addEventListener("click", () => {
+  soundOn = !soundOn;
+  if (soundOn) ensureAudio(); else stopTicks();
+  renderSound();
+});
+renderSound();
+
+// ---- No-repeat round + turn tracking ----
+const ALL = Array.from({ length: N }, (_, i) => i);
+let noRepeat = true;
+let totalSpins = 0;
+const used = new Set();
+const progress = document.getElementById("progress");
+const resetBtn = document.getElementById("resetBtn");
+
+function updateBoard(){
+  if (noRepeat){
+    segPaths.forEach((p, i) => p.classList.toggle("used", used.has(i)));
+    segNums.forEach((t, i) => t.classList.toggle("used", used.has(i)));
+    progress.textContent = `Обрано ${used.size} / ${N} · лишилось ${N - used.size}`;
+  } else {
+    segPaths.forEach(p => p.classList.remove("used"));
+    segNums.forEach(t => t.classList.remove("used"));
+    progress.textContent = `Прокруток: ${totalSpins}`;
+  }
+}
+
+function enterRoundComplete(){
+  spinBtn.disabled = true;
+  hint.textContent = "Усі вже ходили";
+  resetBtn.hidden = false;
+  resetBtn.focus();
+}
+
+function resetRound(){
+  used.clear();
+  totalSpins = 0;
+  resetBtn.hidden = true;
+  spinBtn.disabled = false;
+  hint.textContent = "Тисни «Крутити» — обрати учасника";
+  updateBoard();
+  spinBtn.focus();
+}
+resetBtn.addEventListener("click", resetRound);
+
+const repeatToggle = document.getElementById("repeatToggle");
+const repeatLabel = document.getElementById("repeatLabel");
+const repeatIco = document.getElementById("repeatIco");
+const REP_ON = '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#3DB4BF" stroke-width="2"/><path d="m8 12 2.5 2.5L16 9" stroke="#3DB4BF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const REP_OFF = '<svg viewBox="0 0 24 24" fill="none"><path d="M4 9a8 8 0 0 1 14-3M20 6v4h-4" stroke="#9b827c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 15a8 8 0 0 1-14 3M4 18v-4h4" stroke="#9b827c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function renderRepeat(){
+  repeatToggle.classList.toggle("off", !noRepeat);
+  repeatToggle.setAttribute("aria-pressed", String(noRepeat));
+  repeatLabel.textContent = noRepeat ? "Без повторів" : "З повторами";
+  repeatIco.innerHTML = noRepeat ? REP_ON : REP_OFF;
+}
+repeatToggle.addEventListener("click", () => {
+  noRepeat = !noRepeat;
+  used.clear();
+  totalSpins = 0;
+  resetBtn.hidden = true;
+  spinBtn.disabled = false;
+  hint.textContent = "Тисни «Крутити» — обрати учасника";
+  renderRepeat();
+  updateBoard();
+});
+renderRepeat();
+updateBoard();
+</script>
+</body>
+</html>
